@@ -40,6 +40,6 @@ test.describe('Reset password page', () => {
   test('signed out, an unknown address shows the sign-in overlay rather than the app', async ({ page }) => {
     // Signed out, every non-reset path shows the sign-in overlay.
     await page.goto('/no-such-page');
-    await expect(page.getByRole('heading', { name: 'Welcome to CaseCite' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to SmartProBono Counsel' })).toBeVisible();
   });
 });
