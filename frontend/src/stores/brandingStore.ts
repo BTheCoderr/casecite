@@ -105,11 +105,11 @@ function onColor(bg: string, alpha = 1): string {
 // ==================== Defaults ====================
 
 const DEFAULT_BRANDING: BrandingConfig = {
-  firm_name: 'CaseCite',
+  firm_name: 'SmartProBono Counsel',
   logo_url: null,
-  primary_color: '#E5E5E5',
-  secondary_color: '#0A0A0A',
-  accent_color: '#737373',
+  primary_color: '#0D766E',
+  secondary_color: '#10263D',
+  accent_color: '#51D5C5',
   favicon_url: null,
   updated_at: null,
 };

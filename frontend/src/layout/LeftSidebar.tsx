@@ -69,9 +69,9 @@ function LeftSidebar() {
         {/* Logo */}
         <div className={`${s.logo} ${collapsed ? s.logoCollapsed : ''}`}>
           {branding.logo_url ? (
-            <img src={branding.logo_url} alt={branding.firm_name || 'CaseCite'} className={s.logoImg} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            <img src={branding.logo_url} alt={branding.firm_name || 'SmartProBono Counsel'} className={s.logoImg} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           ) : (
-            <span className={s.logoWordmark}>{collapsed ? 'C' : 'CaseCite'}<span className={s.logoDot}>.</span></span>
+            <span className={s.logoWordmark} title={branding.firm_name || 'SmartProBono Counsel'}>{collapsed ? (branding.firm_name || 'SmartProBono Counsel').charAt(0) : (branding.firm_name || 'SmartProBono Counsel')}</span>
           )}
         </div>
 
