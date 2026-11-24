@@ -12,7 +12,7 @@ test.describe('Navigation', () => {
     await expect(header.getByRole('heading', { name: 'Workspace' })).toBeVisible();
 
     // Logged-out visitors get the overlay instead of a view (AppRoutes).
-    await expect(page.getByRole('heading', { name: 'Welcome to CaseCite' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to SmartProBono Counsel' })).toBeVisible();
   });
 
   test('left sidebar has navigation sections', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('Navigation', () => {
     // Dismissing it leaves the app on the auth overlay.
     await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page.getByRole('heading', { name: 'Register' })).not.toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Welcome to CaseCite' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to SmartProBono Counsel' })).toBeVisible();
   });
 
   test('sidebar collapse and expand works', async ({ page }) => {
