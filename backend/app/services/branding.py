@@ -21,11 +21,11 @@ from app.models.db_models import BrandingConfigDB
 logger = logging.getLogger(__name__)
 
 DEFAULT_BRANDING: dict = {
-    "firm_name": "CaseCite",
+    "firm_name": "SmartProBono Counsel",
     "logo_url": None,
-    "primary_color": "#E5E5E5",
-    "secondary_color": "#0A0A0A",
-    "accent_color": "#737373",
+    "primary_color": "#0D766E",
+    "secondary_color": "#10263D",
+    "accent_color": "#51D5C5",
     "favicon_url": None,
     "custom_css": None,
 }

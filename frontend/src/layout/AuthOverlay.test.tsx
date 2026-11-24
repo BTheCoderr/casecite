@@ -11,7 +11,7 @@ describe('AuthOverlay', () => {
 
   it('renders the overlay', () => {
     const { container } = render(<AuthOverlay />);
-    expect(container.innerHTML).toContain('CaseCite');
+    expect(container.innerHTML).toContain('SmartProBono Counsel');
   });
 
   it('renders Sign In button', () => {
