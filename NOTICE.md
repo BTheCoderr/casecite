@@ -53,7 +53,7 @@ universal, so it includes a few packages that install only on some platforms.
 | [colorama](https://github.com/tartley/colorama) | 0.4.6 | BSD License |
 | [cryptography](https://pypi.org/project/cryptography/) | 50.0.2 | Apache-2.0 OR BSD-3-Clause |
 | [distro](https://github.com/python-distro/distro) | 1.9.0 | Apache License, Version 2.0 |
-| [dnspython](https://pypi.org/project/dnspython/) | 2.9.0 | ISC |
+| [dnspython](https://pypi.org/project/dnspython/) | 2.9.2 | ISC |
 | [docstring-parser](https://pypi.org/project/docstring-parser/) | 0.18.0 | MIT |
 | [durationpy](https://github.com/icholy/durationpy) | 0.10 | MIT |
 | [email-validator](https://github.com/JoshData/python-email-validator) | 2.3.0 | Unlicense |
@@ -91,7 +91,7 @@ universal, so it includes a few packages that install only on some platforms.
 | [mmh3](https://pypi.org/project/mmh3/) | 5.2.1 | MIT License |
 | [multidict](https://github.com/aio-libs/multidict) | 7.2.1 | Apache-2.0 |
 | [numpy](https://numpy.org) | 1.26.4 | BSD License |
-| [oauthlib](https://github.com/oauthlib/oauthlib) | 4.0.0 | BSD-3-Clause |
+| [oauthlib](https://github.com/oauthlib/oauthlib) | 4.0.1 | BSD-3-Clause |
 | [olefile](https://www.decalage.info/python/olefileio) | 0.47 | BSD |
 | [onnxruntime](https://onnxruntime.ai) | 1.27.0 | MIT License |
 | [openai](https://github.com/openai/openai-python) | 3.40.0 | Apache-2.0 |
