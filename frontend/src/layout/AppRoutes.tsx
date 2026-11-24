@@ -9,6 +9,7 @@ import s from './AppRoutes.module.css';
 const RagDocsView = React.lazy(() => import('../views/RagDocsView'));
 const JudgeIntelView = React.lazy(() => import('../views/JudgeIntelView'));
 const CaseView = React.lazy(() => import('../views/CaseView'));
+const IpResearchView = React.lazy(() => import('../views/IpResearchView'));
 const ResearchView = React.lazy(() => import('../views/ResearchView'));
 const ToolsView = React.lazy(() => import('../views/ToolsView'));
 const ContractsView = React.lazy(() => import('../views/ContractsView'));
@@ -65,6 +66,7 @@ export function AppRoutes() {
     <Suspense fallback={<ViewLoadingFallback />}>
       <Routes>
         <Route path="/research" element={<ResearchView />} />
+        <Route path="/ip-research" element={<IpResearchView />} />
         <Route path="/documents" element={<RagDocsView />} />
         <Route path="/judge-intel" element={<JudgeIntelView />} />
         <Route path="/case/:id" element={<CaseView />} />
