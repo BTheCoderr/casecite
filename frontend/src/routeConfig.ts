@@ -4,6 +4,7 @@
 const ROUTE_TO_MODE: Record<string, string> = {
   '/research': 'research',
   '/ip-research': 'ip-research',
+  '/patent-studio': 'patent-studio',
   '/documents': 'rag-docs',
   '/judge-intel': 'judge-intel',
   '/contracts': 'contracts',
@@ -19,6 +20,7 @@ const ROUTE_TO_MODE: Record<string, string> = {
 export const MODE_TO_ROUTE: Record<string, string> = {
   'research': '/research',
   'ip-research': '/ip-research',
+  'patent-studio': '/patent-studio',
   'rag-docs': '/documents',
   'judge-intel': '/judge-intel',
   'contracts': '/contracts',
