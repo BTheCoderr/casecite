@@ -55,7 +55,7 @@ export function SecurityTab({ styles }: SecurityTabProps) {
   const downloadCodes = () => {
     if (!freshRecoveryCodes) return;
     const blob = new Blob(
-      [`CaseCite two-factor recovery codes\nEach code works exactly once. Store them somewhere safe.\n\n${freshRecoveryCodes.join('\n')}\n`],
+      [`SmartProBono Counsel two-factor recovery codes\nEach code works exactly once. Store them somewhere safe.\n\n${freshRecoveryCodes.join('\n')}\n`],
       { type: 'text/plain' },
     );
     const url = URL.createObjectURL(blob);

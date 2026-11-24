@@ -47,7 +47,7 @@ class BrandingConfigDB(Base):
     __tablename__ = "branding_config"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    firm_name = Column(String(255), default="CaseCite")
+    firm_name = Column(String(255), default="SmartProBono Counsel")
     logo_url = Column(String(500), nullable=True)
     primary_color = Column(String(20), default="#E5E5E5")
     secondary_color = Column(String(20), default="#0A0A0A")

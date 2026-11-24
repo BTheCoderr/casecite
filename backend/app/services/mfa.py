@@ -20,7 +20,7 @@ import time
 from app.services.encryption import encryption_service
 from app.utils.keys import derive_subkey
 
-ISSUER_NAME = "CaseCite"
+ISSUER_NAME = "SmartProBono Counsel"
 RECOVERY_CODE_COUNT = 10
 CHALLENGE_TTL_SECONDS = 300  # 5 minutes to complete the second factor
 
