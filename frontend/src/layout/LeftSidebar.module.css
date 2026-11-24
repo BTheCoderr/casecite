@@ -71,23 +71,13 @@
 .logoWordmark {
   font-family: 'Source Serif 4', Georgia, serif;
   font-weight: 500;
-  font-size: 22px;
+  font-size: 19px;
   line-height: 1.2;
   color: var(--chrome-wordmark);
   letter-spacing: 0.06em;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
-.logoDot {
-  /* Darker red than the old asterisk mark (#C8102E). Scaled up so the period
-     reads as a deliberate mark, not punctuation; line-height 0 keeps the
-     bigger glyph from stretching the logo row. */
-  color: #8A0F1F;
-  font-size: 1.5em;
-  /* line-height 0 keeps the scaled-up glyph from stretching the logo row;
-     it stays a normal period sitting on the baseline. */
-  line-height: 0;
-}
 
 .modeSection {
   margin-bottom: 22px;
