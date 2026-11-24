@@ -9,6 +9,7 @@ import s from './AppRoutes.module.css';
 const RagDocsView = React.lazy(() => import('../views/RagDocsView'));
 const JudgeIntelView = React.lazy(() => import('../views/JudgeIntelView'));
 const CaseView = React.lazy(() => import('../views/CaseView'));
+const PatentStudioView = React.lazy(() => import('../views/PatentStudioView'));
 const IpResearchView = React.lazy(() => import('../views/IpResearchView'));
 const ResearchView = React.lazy(() => import('../views/ResearchView'));
 const ToolsView = React.lazy(() => import('../views/ToolsView'));
@@ -67,6 +68,7 @@ export function AppRoutes() {
       <Routes>
         <Route path="/research" element={<ResearchView />} />
         <Route path="/ip-research" element={<IpResearchView />} />
+        <Route path="/patent-studio" element={<PatentStudioView />} />
         <Route path="/documents" element={<RagDocsView />} />
         <Route path="/judge-intel" element={<JudgeIntelView />} />
         <Route path="/case/:id" element={<CaseView />} />
