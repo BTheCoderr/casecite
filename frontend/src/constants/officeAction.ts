@@ -48,7 +48,7 @@ export function detectActionMentions(text: string): { mentions: ActionMention[];
   // Require an explicit statutory prefix. Do not equate a citation with an
   // actual rejection. Match literal claim numbers/ranges, not inferred claims.
   const rules: { kind: MentionKind; pattern: RegExp }[] = [
-    { kind: 'statute', pattern: /\b35[ \t]+U\.?[ \t]*S\.?[ \t]*C\.?[ \t]*(?:§{1,2}[ \t]*|sections?[ \t]+)?(101|102|103|112)(?![\d.])(?:[ \t]*\([a-z0-9]+\))*/gi },
+    { kind: 'statute', pattern: /\b35[ \t]+U\.?[ \t]*S\.?[ \t]*C\.?[ \t]*(?:§{1,2}[ \t]*|sections?[ \t]+)?(101|102|103|112)(?!\d|\.\d)(?:[ \t]*\([a-z0-9]+\))*/gi },
     { kind: 'claims', pattern: /\bclaims?[ \t]+\d+(?:(?:[ \t]*(?:[-–—,]|and|through|to)[ \t]*)\d+)*/gi },
   ];
   const mentions: ActionMention[] = [];
