@@ -14,7 +14,9 @@ from app.utils.ip_resolution import get_client_ip
 router = APIRouter(prefix="/matters", tags=["patent-preview"])
 
 
-@router.post("/{matter_id}/patent-snapshots", response_model=PatentSnapshotResponse, status_code=201)
+@router.post(
+    "/{matter_id}/patent-snapshots", response_model=PatentSnapshotResponse, status_code=201
+)
 async def save_patent_snapshot(
     matter_id: str,
     worksheet: PatentWorksheet,

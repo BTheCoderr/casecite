@@ -30,7 +30,9 @@ async def require_matter(
     if matter is None or (write and matter.owner_id != user_id):
         raise NotFoundError("Matter not found")
     if write and (matter.legal_hold or matter.retention_days is not None):
-        raise ConflictError("Patent preview cannot write to a matter with hold or retention settings")
+        raise ConflictError(
+            "Patent preview cannot write to a matter with hold or retention settings"
+        )
     return matter
 
 
