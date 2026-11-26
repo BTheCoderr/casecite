@@ -1,5 +1,5 @@
 // Counsel: Patent Studio persistence. Matter-scoped; the server encrypts the text at rest.
-import { api } from './client';
+import { api, API_BASE_URL } from './client';
 import type {
   PatentClaimElement,
   PatentClaimElementInput,
@@ -13,6 +13,15 @@ import type {
 const wsPath = (id: string, suffix = '') => `/patent-workspaces/${encodeURIComponent(id)}${suffix}`;
 
 Object.assign(api, {
+  async exportPatentReport(workspaceId: string, format: 'pdf' | 'docx'): Promise<Blob> {
+    const response = await api.authFetch(API_BASE_URL + wsPath(workspaceId, '/report'), {
+      method: 'POST', body: JSON.stringify({ format, fictional_data_only: true }), cache: 'no-store',
+    });
+    if (!response.ok) throw new Error('Saved report export unavailable. Check preview access and format.');
+    const expected = format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    if (!response.headers.get('content-type')?.startsWith(expected)) throw new Error('Unexpected report format');
+    return response.blob();
+  },
   async listPatentWorkspaces(matterId?: string | null): Promise<{ workspaces: PatentWorkspaceSummary[] }> {
     const q = matterId ? `?matter_id=${encodeURIComponent(matterId)}` : '';
     return api.request(`/patent-workspaces${q}`);

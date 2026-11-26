@@ -11,20 +11,23 @@ references or draw any conclusion about patentability. Audit entries carry ids,
 versions and counts only — never disclosure or claim text.
 """
 
+import asyncio
 from datetime import datetime
 from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
-from app.exceptions import NotFoundError
+from app.exceptions import BadRequestError, NotFoundError
 from app.models.patent import ClaimElement, InventionDisclosure, PatentWorkspace
 from app.routers._matter_deps import accessible_matter_ids
 from app.services.audit import AuditEventType, audit_service
 from app.services.auth import TokenData
 from app.services.patent import patent_workspace_service as svc
+from app.services.patent_report import render_docx, render_pdf
 from app.services.permissions import require_permission
 from app.utils.ip_resolution import get_client_ip
 
@@ -392,3 +395,57 @@ async def replace_claim_elements(
         count=len(rows),
     )
     return [_element_out(e) for e in rows]
+
+
+class ReportRequest(_Strict):
+    format: Literal["pdf", "docx"]
+    fictional_data_only: Literal[True]
+
+
+@router.post("/{workspace_id}/report")
+async def export_patent_report(
+    workspace_id: str,
+    body: ReportRequest,
+    request: Request,
+    current_user: TokenData = require_permission("contracts.use"),
+    db: AsyncSession = Depends(get_db),
+    matter_ids: set[str] = Depends(accessible_matter_ids),
+) -> Response:
+    """Render saved data only; no new storage, model calls or filing."""
+    if not settings.debug:
+        raise NotFoundError("Patent report preview is unavailable")
+    ws = await _require_readable(db, workspace_id, current_user, matter_ids)
+    if ws.matter_id not in matter_ids:
+        raise NotFoundError("Patent workspace not found")
+    detail = await _detail(db, ws, current_user.user_id)
+    try:
+        content = await asyncio.to_thread(
+            render_pdf if body.format == "pdf" else render_docx, detail.model_dump(mode="json")
+        )
+    except ValueError as exc:
+        raise BadRequestError(str(exc)) from None
+    await _audit(
+        request,
+        current_user,
+        AuditEventType.DATA_EXPORT,
+        "patent_report_exported",
+        ws.id,
+        format=body.format,
+        disclosure_version=detail.disclosure.version if detail.disclosure else None,
+        element_count=len(detail.elements),
+    )
+    media_type = (
+        "application/pdf"
+        if body.format == "pdf"
+        else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+    filename = f"counsel-fictional-patent-review.{body.format}"
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )

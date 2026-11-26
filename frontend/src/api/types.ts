@@ -2020,6 +2020,7 @@ export interface ApiClient {
   getLegalSourceSection(sectionId: string): Promise<LegalSourceSectionDetail>;
 
   // Patent Studio (Counsel)
+  exportPatentReport(workspaceId: string, format: 'pdf' | 'docx'): Promise<Blob>;
   listPatentWorkspaces(matterId?: string | null): Promise<{ workspaces: PatentWorkspaceSummary[] }>;
   createPatentWorkspace(matterId: string, title: string): Promise<PatentWorkspaceDetail>;
   getPatentWorkspace(workspaceId: string): Promise<PatentWorkspaceDetail>;

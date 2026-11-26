@@ -48,7 +48,7 @@ test.describe('Counsel IP routes', () => {
     const state = await loginAs(page, '/ip-research');
     const panel = page.getByRole('region', { name: 'Prior art discovery workbench' });
     const before = state.calls.length;
-    await panel.getByLabel('Technical feature').fill('fictional valve');
+    await panel.getByRole('textbox', { name: 'Technical feature', exact: true }).fill('fictional valve');
     await panel.getByLabel('Alternate terms (comma or newline separated)').fill('scraper');
     await expect(panel.getByText('"fictional valve" OR "scraper"', { exact: true }).first()).toBeVisible();
     await expect(panel.getByRole('link', { name: 'USPTO Patent Public Search' })).toHaveAttribute('href', 'https://www.uspto.gov/patents/search/patent-public-search');
