@@ -16,11 +16,11 @@ import { useBrandingStore } from './brandingStore';
 import { api } from '../api';
 
 const DEFAULT_BRANDING = {
-  firm_name: 'CaseCite',
+  firm_name: 'SmartProBono Counsel',
   logo_url: null,
-  primary_color: '#E5E5E5',
-  secondary_color: '#0A0A0A',
-  accent_color: '#737373',
+  primary_color: '#0D766E',
+  secondary_color: '#10263D',
+  accent_color: '#51D5C5',
   favicon_url: null,
   updated_at: null,
 };
@@ -134,8 +134,8 @@ describe('brandingStore', () => {
     useBrandingStore.getState().applyBrandingColors();
 
     const root = document.documentElement.style;
-    expect(root.getPropertyValue('--primary-500')).toBe('#E5E5E5');
-    expect(root.getPropertyValue('--navy-900')).toBe('#0A0A0A');
+    expect(root.getPropertyValue('--primary-500')).toBe('#0D766E');
+    expect(root.getPropertyValue('--navy-900')).toBe('#10263D');
   });
 
   it('applyBrandingColors accepts an explicit config', () => {

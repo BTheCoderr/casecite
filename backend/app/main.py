@@ -39,6 +39,7 @@ from app.routers import (
     legal_docs,
     matters,
     mfa,
+    mpep,
     pickers,
     review_tables,
     strategy,
@@ -569,6 +570,7 @@ app.include_router(chat_sessions.router, prefix=settings.api_prefix)
 app.include_router(workspace_sessions.router, prefix=settings.api_prefix)
 app.include_router(chat.router, prefix=settings.api_prefix)
 app.include_router(matters.router, prefix=settings.api_prefix)
+app.include_router(mpep.router, prefix=settings.api_prefix)
 app.include_router(review_tables.router, prefix=settings.api_prefix)
 app.include_router(deep_research.router, prefix=settings.api_prefix)
 app.include_router(workflows.router, prefix=settings.api_prefix)

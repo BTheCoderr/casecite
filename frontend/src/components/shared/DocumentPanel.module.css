@@ -7,6 +7,12 @@
      reserved dead strip. Upload status chips overlay the drop zone itself
      (absolute, below), so their appearing/vanishing never shifts the box. */
   justify-content: flex-end;
+  /* safe: when the nav above is taller than the sidebar (more modes, short
+     viewport) the panel would otherwise overflow upward and cover the last
+     nav items (Counsel regression: the drop zone intercepted clicks on
+     Knowledge Base). With safe alignment it overflows downward and the
+     sidebar's own scroll (sidebarInner overflow-y: auto) reaches it. */
+  justify-content: safe flex-end;
   position: relative;
 }
 

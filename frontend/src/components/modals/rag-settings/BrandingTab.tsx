@@ -104,7 +104,7 @@ export const BrandingTab = ({ styles }: BrandingTabProps) => {
           className={styles.modalInput}
           value={firmName}
           onChange={(e) => setFirmName(e.target.value)}
-          placeholder="CaseCite"
+          placeholder="SmartProBono Counsel"
           maxLength={255}
         />
       </div>

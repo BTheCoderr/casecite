@@ -11,10 +11,10 @@ export function AuthOverlay() {
         <Icon name="Lock" size={36} className={s.iconGold} />
       </div>
       <h2 className={s.heading}>
-        Welcome to CaseCite
+        Welcome to SmartProBono Counsel
       </h2>
       <p className={s.subtext}>
-        CaseCite is a legal research platform. Upload your documents, ask questions
+        SmartProBono Counsel is a legal research platform. Upload your documents, ask questions
         across them, and research verified case law and judges — all on
         infrastructure you control, using your own AI keys.
       </p>

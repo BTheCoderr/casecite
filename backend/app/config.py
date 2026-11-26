@@ -46,8 +46,11 @@ _REMOVED_SETTINGS = frozenset(
 class Settings(BaseSettings):
     # App
     app_name: str = "CaseCite"
-    app_display_name: str = "CaseCite"
+    app_display_name: str = "SmartProBono Counsel"
     debug: bool = False
+    mpep_preview_corpus: str = ""  # operator-reviewed public source JSON; dev only
+    mpep_analysis_local_url: str = ""
+    mpep_analysis_local_model: str = ""
     environment: str = "development"
     api_prefix: str = "/api/v1"
 

@@ -351,7 +351,7 @@ def _flatten(value: str) -> str:
 def render_redline_docx(
     text: str,
     edits: list[dict],
-    author: str = "CaseCite",
+    author: str = "SmartProBono Counsel",
     omitted: list[dict] | None = None,
 ) -> bytes:
     """Render the full contract text as a .docx with native tracked changes.
@@ -437,7 +437,7 @@ def render_redline_docx(
         run.bold = True
         doc.add_paragraph(
             f"{len(omitted)} proposed change(s) could not be located in the document text "
-            "and are NOT shown as tracked changes above. Review them in CaseCite:"
+            "and are NOT shown as tracked changes above. Review them in SmartProBono Counsel:"
         )
         for edit in omitted:
             label = edit.get("title") or edit.get("ref") or "untitled"
