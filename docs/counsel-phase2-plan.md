@@ -39,6 +39,20 @@ PR 1 ships the smallest safe slice; the rest of the model above lands with the P
 - `patent_reviews` and the `patent.write` / `patent.approve` permissions are deferred to PRs 4–5. PR 1 gates every route with the existing `contracts.use`. Only the owner writes or deletes, members read, and everyone else gets 404.
 - The tables are in `rls.OWNED_TABLES` / `CHILD_TABLES` (migration 028 installs their policies on PostgreSQL), and in the wall, offboarding-transfer and account-purge paths.
 
+## PR 2 as built
+
+- `legal_sources(id, name, edition, revision, published_on, source_url, created_at, fetched_at)` and `legal_source_sections(id, source_id, section_id, title, text, text_sha256, url, revision_note, fetched_at)` (migration 029). Public text, so these tables are not tenant data and have no RLS.
+- **Ingestion** is `scripts/ingest_mpep.py`, run only by an operator; the app never fetches.
+  - Only `https://www.uspto.gov/web/offices/pac/mpep/*.html` is allowed (`check_mpep_url`). Redirects are refused, and pages are fetched one at a time with a delay between them.
+  - Pages can come from a chapter index, a list of URLs, or a directory of saved pages.
+  - The operator must state the edition and revision; nothing is guessed. Each section keeps the revision marker printed in its heading.
+  - Re-running the same revision adds only missing sections. If a section's text changed under the same revision, it is reported as a conflict and never rewritten. A new revision becomes a new source.
+  - `--dry-run` parses and reports without storing. The exit code is 1 when conflicts or pages with no sections were found.
+- **Parser**: it reads headings of the form `NUMBER Title [R-MM.YYYY]` and stops each section at the next heading, a reserved slot, `[top]` or the chapter table of contents. The layout was taken from the live pages, but the tests use only synthetic fixtures (section numbers 99xx), so whether it parses current live pages correctly is unverified until an operator's first run. An unfamiliar layout yields zero sections, which are reported, rather than guesses.
+- **Retrieval** differs from the sketch: it is plain SQL search over the stored sections (by section number, or by words that must all match), not the lexical index or vector store, so the tenant scope guard is untouched. PR 3 decides whether generation needs vector retrieval over a separate public namespace.
+- **API**: `GET /legal-sources`, `GET /legal-sources/sections?q=`, `GET /legal-sources/sections/{id}`. These are read-only and need `tools.research` (viewers included). Every result carries the official URL, edition and revision, the section's revision marker, the fetch time and the text's SHA-256.
+- **UI**: IP Research has a "Stored MPEP text" panel. It searches only on submit, and links each excerpt to its official page.
+
 ## Capabilities, in PR order
 
 1. **Persistent Patent Studio.** Replace in-memory state with the tables above via a `routers/patent.py` that uses the matter dependency for every route. Disclosures, claim elements and mappings are saved and versioned. Pinpoint mappings are verified server-side with `quote_verify`. Tests: CRUD, and cross-user and cross-matter denial extending `test_matter_isolation.py`. The new tables are added to `test_rls_postgres.py`.

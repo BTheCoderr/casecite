@@ -43,6 +43,9 @@ from app.models.enums import (  # noqa: F401
     UserRole,
 )
 
+# Public legal sources (Counsel): operator-ingested MPEP text; not tenant data
+from app.models.legal_sources import LegalSource, LegalSourceSection  # noqa: F401
+
 # Matters & membership (collaboration/isolation unit)
 from app.models.matters import Matter, MatterMember  # noqa: F401
 

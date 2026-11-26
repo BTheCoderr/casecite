@@ -148,4 +148,32 @@ test.describe('Counsel IP routes', () => {
     await expect(page.getByLabel('Working invention title')).toHaveValue('Fictional self-cleaning valve');
     await expect(page.getByLabel('Claim element').first()).toHaveValue('A valve body with a rotating scraper');
   });
+
+  test('IP Research searches the stored MPEP copy only on submit and links each excerpt to the official page', async ({ page }) => {
+    // Synthetic fixture values: section 9990 does not exist in the MPEP.
+    const source = { id: 'src-1', name: 'MPEP', edition: 'Synthetic Edition', revision: '01.2030', published_on: null, source_url: 'https://www.uspto.gov/web/offices/pac/mpep/mpep-9900.html', fetched_at: '2030-01-02T03:04:05', section_count: 1 };
+    const hit = { id: 'sec-1', section_id: '9990', title: 'Synthetic Fixture Section', revision_note: 'R-01.2030', url: 'https://www.uspto.gov/web/offices/pac/mpep/s9990.html', text_sha256: 'a'.repeat(64), fetched_at: '2030-01-02T03:04:05', snippet: 'FIXTURE TEXT ALPHA about a widget' };
+    const queries: string[] = [];
+    const override: MockOverride = async (route, url, method) => {
+      const path = url.pathname.replace(/^.*\/api\/v1/, '');
+      if (method !== 'GET' || !path.startsWith('/legal-sources')) return false;
+      if (path === '/legal-sources') { await fulfillJson(route, 200, { sources: [source] }); return true; }
+      if (path === '/legal-sources/sections') {
+        queries.push(url.searchParams.get('q') ?? '');
+        await fulfillJson(route, 200, { source, query: url.searchParams.get('q'), results: [hit] });
+        return true;
+      }
+      return false;
+    };
+    const state = await loginAs(page, '/ip-research', { overrides: [override] });
+    await expect(page.getByText(/Stored copy: MPEP Synthetic Edition, revision 01\.2030, 1 sections, last fetched 2030-01-02/)).toBeVisible();
+    const before = state.calls.length;
+    await page.getByRole('searchbox', { name: 'Search the stored MPEP copy' }).fill('widget');
+    expect(queries).toEqual([]);
+    await page.getByRole('button', { name: 'Search stored copy' }).click();
+    await expect(page.getByText('MPEP § 9990 Synthetic Fixture Section')).toBeVisible();
+    expect(queries).toEqual(['widget']);
+    await expect(page.getByRole('link', { name: 'Check § 9990 on the official page (USPTO)' })).toHaveAttribute('href', hit.url);
+    expect(state.calls.slice(before).filter((c) => !c.startsWith('GET ') && !c.startsWith('OPTIONS '))).toEqual([]);
+  });
 });

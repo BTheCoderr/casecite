@@ -1831,6 +1831,41 @@ export interface PatentWorkspaceDetail extends PatentWorkspaceSummary {
   elements: PatentClaimElement[];
 }
 
+// ── Public legal sources (Counsel) ─────────────────────────────────────
+export interface LegalSource {
+  id: string;
+  name: string;
+  edition: string;
+  revision: string;
+  published_on: string | null;
+  source_url: string;
+  fetched_at: string;
+  section_count: number;
+}
+
+export interface LegalSourceSectionHit {
+  id: string;
+  section_id: string;
+  title: string;
+  /** The section's own revision marker, e.g. "R-10.2019". */
+  revision_note: string;
+  url: string;
+  text_sha256: string;
+  fetched_at: string;
+  snippet: string;
+}
+
+export interface LegalSourceSearchResult {
+  source: LegalSource | null;
+  query: string;
+  results: LegalSourceSectionHit[];
+}
+
+export interface LegalSourceSectionDetail extends Omit<LegalSourceSectionHit, 'snippet'> {
+  text: string;
+  source: LegalSource;
+}
+
 export interface ApiClient {
   token: string | null;
 
@@ -1978,6 +2013,11 @@ export interface ApiClient {
   getMatterActivity(matterId: string, limit?: number): Promise<{ events: MatterActivityEvent[] }>;
   /** Replace the matter's facts (empty clears them). 403 when the caller's role can't edit. */
   setMatterFacts(matterId: string, facts: string): Promise<MatterFacts>;
+
+  // Public legal sources (Counsel)
+  listLegalSources(): Promise<{ sources: LegalSource[] }>;
+  searchLegalSourceSections(q: string, sourceId?: string | null): Promise<LegalSourceSearchResult>;
+  getLegalSourceSection(sectionId: string): Promise<LegalSourceSectionDetail>;
 
   // Patent Studio (Counsel)
   listPatentWorkspaces(matterId?: string | null): Promise<{ workspaces: PatentWorkspaceSummary[] }>;

@@ -11,6 +11,7 @@ import './documents';
 import './matters';
 import './reviewTables';
 import './patent';
+import './legalSources';
 import './deepResearch';
 import './workflows';
 import './settings';

@@ -141,6 +141,7 @@ export async function installApiMocks(page: Page, options: MockApiOptions = {}):
     }
 
     // ---- documents ----
+    if (path === '/legal-sources' && method === 'GET') return fulfillJson(route, 200, { sources: [] });
     if (path === '/documents/folders') return fulfillJson(route, 200, { folders: [] });
     if (path === '/documents/tree') return fulfillJson(route, 200, { tree: [], total_documents: state.documents.length });
     if (path === '/documents' && method === 'GET') {
