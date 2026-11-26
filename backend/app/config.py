@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     app_name: str = "CaseCite"
     app_display_name: str = "SmartProBono Counsel"
     debug: bool = False
+    mpep_preview_corpus: str = ""  # operator-reviewed public source JSON; dev only
     environment: str = "development"
     api_prefix: str = "/api/v1"
 
