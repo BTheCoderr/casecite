@@ -8,10 +8,10 @@ export function SignIn() {
 
   return (
     <div className={s.card}>
-      <h2 className={s.heading}>Sign in to CaseCite</h2>
+      <h2 className={s.heading}>Sign in to SmartProBono Counsel</h2>
       {!serverUrl && (
         <p className={s.text}>
-          First tell the add-in where your firm's CaseCite runs.{' '}
+          First tell the add-in where your firm's SmartProBono Counsel runs.{' '}
           <button type="button" className={s.link} onClick={() => setScreen('settings')}>
             Open settings
           </button>
@@ -21,7 +21,7 @@ export function SignIn() {
       {signIn.status === 'idle' || signIn.status === 'error' ? (
         <>
           <p className={s.text}>
-            You will get a short code. Approve it in CaseCite in your browser, where you are already
+            You will get a short code. Approve it in SmartProBono Counsel in your browser, where you are already
             signed in; this pane then works as that account. Nothing is typed into Word.
           </p>
           {signIn.status === 'error' && (
@@ -44,7 +44,7 @@ export function SignIn() {
 
       {waiting && signIn.code && (
         <>
-          <p className={s.text}>Enter this code in CaseCite:</p>
+          <p className={s.text}>Enter this code in SmartProBono Counsel:</p>
           <code className={s.code}>{signIn.code.user_code}</code>
           <p className={s.text}>
             A browser window should have opened. If it did not,{' '}

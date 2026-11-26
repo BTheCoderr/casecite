@@ -219,7 +219,7 @@ export const useAddinStore = create<AddinState>((set, get) => {
     startSignIn: async () => {
       const { client, serverUrl } = get();
       if (!client || !serverUrl) {
-        set({ signIn: { ...initialSignIn, status: 'error', error: 'Enter your CaseCite server address first.' } });
+        set({ signIn: { ...initialSignIn, status: 'error', error: 'Enter your SmartProBono Counsel server address first.' } });
         return;
       }
       signInAbort?.abort();

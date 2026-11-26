@@ -13,8 +13,8 @@ export function Settings() {
   return (
     <>
       <div className={s.card}>
-        <h2 className={s.heading}>CaseCite server</h2>
-        <p className={s.text}>The address you open CaseCite at in your browser, for example https://casecite.yourfirm.com.</p>
+        <h2 className={s.heading}>SmartProBono Counsel server</h2>
+        <p className={s.text}>The address you open SmartProBono Counsel at in your browser, for example https://counsel.yourfirm.com.</p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -29,7 +29,7 @@ export function Settings() {
               id="server"
               className={s.input}
               type="url"
-              placeholder="https://casecite.yourfirm.com"
+              placeholder="https://counsel.yourfirm.com"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               required
@@ -49,7 +49,7 @@ export function Settings() {
         {session ? (
           <>
             <p className={s.text}>
-              Signed in as <strong>{session.user.email}</strong>. This session is listed in CaseCite under
+              Signed in as <strong>{session.user.email}</strong>. This session is listed in SmartProBono Counsel under
               Settings → Security → Sessions as “Word add-in”.
             </p>
             <div className={s.field}>

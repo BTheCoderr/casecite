@@ -34,7 +34,9 @@ _CLAIM_LABELS = (
 def _safe_text(value: Any) -> str:
     # XML 1.0 control characters cannot occur in a DOCX document. Mark rather
     # than silently dropping unsupported characters.
-    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]", "\ufffd", str(value or ""))
+    return re.sub(
+        r"[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]", "\ufffd", str(value or "")
+    )
 
 
 def report_sections(data: dict[str, Any]) -> list[tuple[str, str]]:
@@ -48,7 +50,9 @@ def report_sections(data: dict[str, Any]) -> list[tuple[str, str]]:
     ]
     sections.extend((label, _safe_text(fields.get(key))) for key, label in _DISCLOSURE_LABELS)
     for index, row in enumerate(data.get("elements") or [], start=1):
-        sections.append((f"Claim mapping {index}", "Unverified candidate; check sources independently."))
+        sections.append(
+            (f"Claim mapping {index}", "Unverified candidate; check sources independently.")
+        )
         sections.extend((label, _safe_text(row.get(key))) for key, label in _CLAIM_LABELS)
     sections.append(("Practitioner notes", _safe_text(data.get("reviewer_notes"))))
     sections.append(

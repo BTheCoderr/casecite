@@ -1,9 +1,9 @@
 /* One stylesheet for the task pane: it is 320–450 px wide, so everything is a
-   single column. Colours follow the web app's navy / grey palette. */
+   single column. Colours follow the web app's navy / teal palette. */
 
 :root {
-  --navy-700: #1e2942;
-  --navy-800: #16203a;
+  --navy-700: #10263D;
+  --navy-800: #10263D;
   --gray-50: #f8f9fb;
   --gray-100: #eef1f5;
   --gray-200: #dfe4ec;
@@ -11,7 +11,8 @@
   --gray-500: #6b7686;
   --gray-600: #525c6b;
   --gray-700: #3b4452;
-  --blue-500: #2f6fed;
+  --blue-500: #0D766E;
+  --teal-accent: #51D5C5;
   --red-50: #fdf2f2;
   --red-100: #f8d7d7;
   --red-700: #a12626;
@@ -36,6 +37,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
+  gap: 8px;
   background: var(--navy-700);
   color: white;
 }
@@ -43,12 +45,16 @@
 .brand {
   font-weight: 700;
   letter-spacing: 0.02em;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .who {
   font-size: 11px;
   opacity: 0.85;
-  max-width: 55%;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 45%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -74,7 +80,7 @@
 .tabActive {
   color: var(--navy-800);
   font-weight: 600;
-  border-bottom-color: var(--navy-700);
+  border-bottom-color: var(--blue-500);
 }
 
 .content {
@@ -150,7 +156,7 @@
 
 .primary {
   padding: 9px 14px;
-  background: var(--navy-700);
+  background: var(--blue-500);
   color: white;
   border: none;
   border-radius: 7px;

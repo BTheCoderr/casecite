@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Counsel (fork)
+- **Word add-in branding.** Update display/provider names, ribbon labels, task pane, device-code instructions and server settings to SmartProBono Counsel; navy/teal palette and narrow-pane header layout. Preserve manifest GUID, command and storage identifiers, original attribution and existing icons until the original Counsel logo is supplied. Word-host verification remains required.
 - **Saved patent review PDF and Word drafts.** Authenticated development-only export of saved workspace disclosures, unverified claim mappings, manual Office Action notes and practitioner notes. Explicit fictional-data confirmation, audit event, no-store response, no model calls or filing. Separate local workbench notes are not included.
 - **Office Action review workbench.** Local fictional-data scan of explicit statutory and claim references, exact source spans, non-exhaustive official research links, manual review annotations and gated JSON export. No inferred rejections, calculated deadlines, AI, persistence or filing.
 - **Manual prior art discovery workbench.** IP Research now includes generic Boolean search planning, fixed official patent database links, a research checklist and local unverified candidate notes. Fictional-data export is explicit; no live search, AI, automatic uploads, or persistence.
