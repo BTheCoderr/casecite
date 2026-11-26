@@ -340,3 +340,44 @@ def test_viewer_role_without_contracts_permission_is_refused(client):
     matter_id = make_shared_matter(owner)
     resp = client.post(BASE, headers=headers(owner), json={"matter_id": matter_id, "title": "x"})
     assert resp.status_code == 403
+
+
+def test_saved_report_formats_and_access(client, audit_events):
+    import io
+
+    from docx import Document
+    from pypdf import PdfReader
+
+    owner, member, stranger = make_user("pat-report-o"), make_user("pat-report-m"), make_user(
+        "pat-report-s"
+    )
+    matter_id = make_shared_matter(owner, member)
+    ws = _create(client, owner, matter_id)
+    _fill(client, owner, ws["id"])
+    path = f"{BASE}/{ws['id']}/report"
+    for fmt in ("pdf", "docx"):
+        body = {"format": fmt, "fictional_data_only": True}
+        reply = client.post(path, headers=headers(member), json=body)
+        assert reply.status_code == 200, reply.text
+        directives = {part.strip().lower() for part in reply.headers["cache-control"].split(",")}
+        assert "no-store" in directives
+        assert "public" not in directives
+        assert reply.headers["content-disposition"].endswith(f'.{fmt}"')
+        if fmt == "pdf":
+            assert reply.content.startswith(b"%PDF")
+            text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(reply.content)).pages)
+        else:
+            assert reply.content.startswith(b"PK")
+            text = "\n".join(p.text for p in Document(io.BytesIO(reply.content)).paragraphs)
+        assert "FICTIONAL DATA ONLY" in text
+        assert "Unverified candidate" in text
+        assert "Capillary wick planter" in text
+        assert client.post(path, headers=headers(stranger), json=body).status_code == 404
+    assert client.post(
+        path, headers=headers(owner), json={"format": "pdf", "fictional_data_only": False}
+    ).status_code == 422
+    assert client.post(
+        path, headers=headers(owner), json={"format": "pdf", "fictional_data_only": True, "verified": True}
+    ).status_code == 422
+    assert SECRET_PHRASE not in repr(audit_events)
+    assert any(e["details"]["action"] == "patent_report_exported" for e in audit_events)

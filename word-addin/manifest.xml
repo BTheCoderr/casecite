@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  CaseCite for Word: task-pane add-in manifest (Word only).
+  SmartProBono Counsel for Word: task-pane add-in manifest (Word only).
 
   The https://localhost:3200 URLs are placeholders for local development.
   `npm run manifest - - origin https://addin.yourfirm.com` (scripts/make-manifest.mjs)
@@ -15,14 +15,14 @@
   xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
   xsi:type="TaskPaneApp">
   <Id>7c1a0a6e-4d8b-4f3e-9b1a-2c5d6e7f8a90</Id>
-  <Version>0.1.0.0</Version>
-  <ProviderName>CaseCite</ProviderName>
+  <Version>0.1.1.0</Version>
+  <ProviderName>SmartProBono</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="CaseCite" />
+  <DisplayName DefaultValue="SmartProBono Counsel" />
   <Description DefaultValue="Analyze the open document, insert suggested rewrites as tracked changes, and research your firm's documents without leaving Word." />
   <IconUrl DefaultValue="https://localhost:3200/icons/icon-32.png" />
   <HighResolutionIconUrl DefaultValue="https://localhost:3200/icons/icon-80.png" />
-  <SupportUrl DefaultValue="https://github.com/thomasunise/casecite" />
+  <SupportUrl DefaultValue="https://github.com/BTheCoderr/casecite" />
   <AppDomains>
     <AppDomain>https://localhost:3200</AppDomain>
   </AppDomains>
@@ -87,16 +87,16 @@
         <bt:Image id="Icon.80" DefaultValue="https://localhost:3200/icons/icon-80.png" />
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://github.com/thomasunise/casecite/blob/main/word-addin/README.md" />
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://github.com/BTheCoderr/casecite" />
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3200/index.html" />
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GetStarted.Title" DefaultValue="CaseCite is ready" />
-        <bt:String id="Group.Label" DefaultValue="CaseCite" />
-        <bt:String id="Button.Label" DefaultValue="CaseCite" />
+        <bt:String id="GetStarted.Title" DefaultValue="SmartProBono Counsel is ready" />
+        <bt:String id="Group.Label" DefaultValue="SmartProBono Counsel" />
+        <bt:String id="Button.Label" DefaultValue="SmartProBono Counsel" />
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="Open the CaseCite pane from the Home tab to analyze this document or research your firm's documents." />
+        <bt:String id="GetStarted.Description" DefaultValue="Open the SmartProBono Counsel pane from the Home tab to analyze this document or research your firm's documents." />
         <bt:String id="Button.Tooltip" DefaultValue="Analyze this document, insert suggested rewrites as tracked changes, and research your firm's documents." />
       </bt:LongStrings>
     </Resources>

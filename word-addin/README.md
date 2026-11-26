@@ -1,9 +1,11 @@
-# CaseCite for Word
+# SmartProBono Counsel for Word
 
-A task-pane add-in for Microsoft Word that talks to your firm's own CaseCite
+This is an independent fork of CaseCite, Copyright 2026 Thomas Unise, under Apache-2.0. See the repository LICENSE and NOTICE.md. The add-in is a development preview; use fictional data only. The existing contract analysis and research modes are not patent-specific Word analysis. No Microsoft Store or tenant deployment is implied.
+
+A task-pane add-in for Microsoft Word that talks to your firm's own SmartProBono Counsel
 server. It lets a lawyer stay in the document they are working on and:
 
-- **Analyze this document** — runs CaseCite's contract review on the open
+- **Analyze this document** — runs SmartProBono Counsel's contract review on the open
   document and lists the issues and key terms in the pane. Clicking an issue
   selects the quoted passage in Word.
 - **Insert a suggested rewrite as a tracked change** — the issue's suggested
@@ -16,16 +18,16 @@ server. It lets a lawyer stay in the document they are working on and:
 
 Every AI-generated insertion ends with the same verify-before-relying notice
 the web app puts on its exports. The add-in is a client only: documents and
-answers go to your CaseCite server and from there to the AI provider your firm
+answers go to your SmartProBono Counsel server and from there to the AI provider your firm
 configured, exactly as they do from the browser.
 
 ## How sign-in works
 
-The pane cannot share the browser's CaseCite cookies, so it signs in the way a
+The pane cannot share the browser's SmartProBono Counsel cookies, so it signs in the way a
 TV app does (RFC 8628 device code):
 
 1. The pane asks the server for a code and shows it (`XXXX-XXXX`).
-2. It opens `https://<your CaseCite>/device` in your browser, where you are
+2. It opens `https://<your SmartProBono Counsel>/device` in your browser, where you are
    already signed in; you type or confirm the code and press **Approve**.
 3. The pane's next poll receives a session. That session is listed in the web
    app under Settings → Security → Sessions as **Word add-in** and can be ended
@@ -37,7 +39,7 @@ add-in because it has no user row; sign in with a real account.
 
 ## Prerequisites
 
-- A running CaseCite server reachable over HTTPS from the machine running Word
+- A running SmartProBono Counsel server reachable over HTTPS from the machine running Word
   (`DEBUG=true` on `http://localhost:8000` works for local development).
 - On the server, `WORD_ADDIN_ORIGIN` set to the origin the pane is served from
   (see below). `FRONTEND_URL` should point at the web app so the approval link
@@ -86,12 +88,12 @@ pane's requests pass CORS.
   `~/Library/Containers/com.microsoft.Word/Data/Documents/wef/` (create the
   folder if needed), restart Word, then *Insert → Add-ins → My Add-ins*.
 
-The **CaseCite** button appears on the Home tab and opens the pane. Microsoft's
+The **SmartProBono Counsel** button appears on the Home tab and opens the pane. Microsoft's
 sideloading guide covers edge cases: <https://learn.microsoft.com/office/dev/add-ins/testing/test-debug-office-add-ins>.
 
 ## Deploy for the firm
 
-The pane is built into the CaseCite Docker image and served at
+The pane is built into the SmartProBono Counsel Docker image and served at
 `https://<your-site>/addin/`; the server renders the manifest for your
 deployment at `https://<your-site>/api/v1/addin/manifest.xml`. Publish that
 through **Centralized Deployment**: Microsoft 365 admin center → *Settings →
@@ -104,7 +106,7 @@ is not needed. Set `FRONTEND_URL` on the server so the URLs are absolute, and
 To host the pane somewhere else instead:
 
 1. Build it and host `dist/` on an HTTPS origin of your choice (any static
-   host; it is plain files). The pane must not be served from the CaseCite
+   host; it is plain files). The pane must not be served from the SmartProBono Counsel
    API path.
 
    ```bash
@@ -116,8 +118,8 @@ To host the pane somewhere else instead:
    stable across versions of one deployment; pass `--id <new GUID>` for a
    second, independent deployment.
 
-2. On the CaseCite server set `WORD_ADDIN_ORIGIN=https://addin.yourfirm.com`
-   and `FRONTEND_URL=https://casecite.yourfirm.com`, then restart; the
+2. On the SmartProBono Counsel server set `WORD_ADDIN_ORIGIN=https://addin.yourfirm.com`
+   and `FRONTEND_URL=https://counsel.yourfirm.com`, then restart; the
    server's manifest then points at that origin too.
 
 3. Publish the manifest as above.

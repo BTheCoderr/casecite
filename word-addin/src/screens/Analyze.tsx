@@ -14,8 +14,8 @@ export function Analyze() {
       <div className={s.card}>
         <h2 className={s.heading}>Analyze this document</h2>
         <p className={s.text}>
-          Reads the whole document and runs CaseCite's contract review on it. The text is sent to
-          your CaseCite server and from there to the AI provider your firm configured.
+          Reads the whole document and runs SmartProBono Counsel's contract review on it. The text is sent to
+          your SmartProBono Counsel server and from there to the AI provider your firm configured.
         </p>
         <div className={s.field}>
           <label className={s.label} htmlFor="representing">

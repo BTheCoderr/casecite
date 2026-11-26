@@ -41,6 +41,10 @@ export default function PatentStudioView() {
   const [role, setRole] = useState<string>('owner');
   const [label, setLabel] = useState('');
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [reportStatus, setReportStatus] = useState('');
+  const [reportConfirmed, setReportConfirmed] = useState(false);
+  const reportPreview = import.meta.env.DEV && import.meta.env.VITE_PATENT_REPORT_PREVIEW_ENABLED === 'true';
   const [status, setStatus] = useState('');
 
   useEffect(() => { mattersInit(); }, [mattersInit]);
@@ -63,6 +67,7 @@ export default function PatentStudioView() {
   useEffect(() => { void loadList(matterId); }, [matterId, loadList]);
 
   function applyDetail(detail: PatentWorkspaceDetail) {
+    setReportConfirmed(false);
     setWorkspaceId(detail.id);
     setRole(detail.role);
     setLabel(detail.title);
@@ -75,6 +80,7 @@ export default function PatentStudioView() {
 
   async function openWorkspace(id: string) {
     setStatus('');
+    setReportConfirmed(false);
     if (!id) {
       setWorkspaceId(''); setRole('owner'); setLabel('');
       return;
@@ -93,6 +99,7 @@ export default function PatentStudioView() {
 
   async function saveToMatter() {
     if (!matterId || readOnly) return;
+    setReportConfirmed(false);
     setSaving(true);
     setStatus('Saving…');
     try {
@@ -123,6 +130,32 @@ export default function PatentStudioView() {
     setRows(previous => previous.map(row => row.id === id ? { ...row, ...patch } : row));
   }
 
+  async function exportSavedReport(format: 'pdf' | 'docx') {
+    if (!workspaceId || !reportConfirmed || saving || exporting) return;
+    setExporting(true);
+    setReportConfirmed(false);
+    setReportStatus('');
+    try {
+      const blob = await api.exportPatentReport(workspaceId, format);
+      const url = URL.createObjectURL(blob);
+      try {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'counsel-fictional-patent-review.' + format;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } finally {
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      setReportStatus('Saved report prepared.');
+    } catch (error) {
+      setReportStatus(errorText(error));
+    } finally {
+      setExporting(false);
+    }
+  }
+
   function exportPacket() {
     if (!confirmed) return;
     const blob = new Blob([makeReviewPacket(disclosure, rows, reviewerNotes)], { type: 'application/json' });
@@ -148,13 +181,13 @@ export default function PatentStudioView() {
         <h2 id="matter-heading">Matter workspace</h2>
         <div className={s.grid}>
           <label className={s.field}>Matter
-            <select value={matterId} onChange={event => { setMatterId(event.target.value); setWorkspaceId(''); setRole('owner'); setLabel(''); setStatus(''); }}>
+            <select value={matterId} disabled={saving || exporting} onChange={event => { setReportConfirmed(false); setMatterId(event.target.value); setWorkspaceId(''); setRole('owner'); setLabel(''); setStatus(''); }}>
               {matters.length === 0 && <option value="">No matters available</option>}
               {matters.map(m => <option key={m.id} value={m.id}>{m.is_personal ? `${m.name} (personal)` : m.name}</option>)}
             </select>
           </label>
           <label className={s.field}>Saved workspace (opening one replaces this page's entries)
-            <select value={workspaceId} onChange={event => void openWorkspace(event.target.value)}>
+            <select value={workspaceId} disabled={saving || exporting} onChange={event => void openWorkspace(event.target.value)}>
               <option value="">New workspace</option>
               {workspaces.map(w => <option key={w.id} value={w.id}>{w.title}{w.role === 'owner' ? '' : ' (shared with you)'}</option>)}
             </select>
@@ -164,7 +197,7 @@ export default function PatentStudioView() {
           </label>
         </div>
         {readOnly && <p>Only the workspace owner can save changes. You can review and export it.</p>}
-        <button type="button" className={s.primary} disabled={!matterId || saving || readOnly} onClick={() => void saveToMatter()}>Save to matter</button>
+        <button type="button" className={s.primary} disabled={!matterId || saving || exporting || readOnly} onClick={() => void saveToMatter()}>Save to matter</button>
         <p role="status" aria-live="polite">{status}</p>
       </section>
       <div className={s.grid}>
@@ -204,6 +237,14 @@ export default function PatentStudioView() {
         <label className={s.confirm}><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /> I confirm this contains fictional data only and understand the export is unencrypted and unverified.</label>
         <button type="button" className={s.primary} disabled={!confirmed} onClick={exportPacket}>Export review draft (JSON)</button>
       </section>
+      {reportPreview && <section className={s.panel} aria-labelledby="patent-report-heading">
+        <h2 id="patent-report-heading">4. Professional review draft</h2>
+        <p>Export the current saved workspace only, not unsaved edits. Separate prior art and Office Action workbench notes are not included. Files are unencrypted and marked fictional and unverified on every page.</p>
+        <label className={s.confirm}><input type="checkbox" checked={reportConfirmed} disabled={!workspaceId || saving || exporting} onChange={event => setReportConfirmed(event.target.checked)} /> I confirm this saved workspace contains fictional data only and I intend to export an unverified draft.</label>
+        <button type="button" className={s.primary} disabled={!workspaceId || !reportConfirmed || saving || exporting} onClick={() => void exportSavedReport('pdf')}>Download saved PDF draft</button>{' '}
+        <button type="button" className={s.secondary} disabled={!workspaceId || !reportConfirmed || saving || exporting} onClick={() => void exportSavedReport('docx')}>Download saved Word draft</button>
+        <p role="status">{exporting ? 'Preparing saved report…' : reportStatus}</p>
+      </section>}
     </section>
   );
 }
