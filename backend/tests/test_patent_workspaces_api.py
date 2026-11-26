@@ -359,7 +359,9 @@ def test_saved_report_formats_and_access(client, audit_events):
         body = {"format": fmt, "fictional_data_only": True}
         reply = client.post(path, headers=headers(member), json=body)
         assert reply.status_code == 200, reply.text
-        assert reply.headers["cache-control"] == "no-store"
+        directives = {part.strip().lower() for part in reply.headers["cache-control"].split(",")}
+        assert "no-store" in directives
+        assert "public" not in directives
         assert reply.headers["content-disposition"].endswith(f'.{fmt}"')
         if fmt == "pdf":
             assert reply.content.startswith(b"%PDF")
