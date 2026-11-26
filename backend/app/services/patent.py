@@ -20,7 +20,9 @@ def require_preview() -> None:
         raise NotFoundError("Patent storage preview is unavailable")
 
 
-async def require_matter(db: AsyncSession, matter_id: str, user_id: str, *, write: bool = False) -> Matter:
+async def require_matter(
+    db: AsyncSession, matter_id: str, user_id: str, *, write: bool = False
+) -> Matter:
     require_preview()
     if not await matters.is_member(db, matter_id, user_id):
         raise NotFoundError("Matter not found")
@@ -42,16 +44,24 @@ def decode_snapshot(row: PatentSnapshot) -> PatentSnapshotResponse:
     if payload["id"] != row.id or payload["matter_id"] != row.matter_id:
         raise ValueError("Patent snapshot identity mismatch")
     return PatentSnapshotResponse(
-        id=row.id, matter_id=row.matter_id, created_by=row.created_by,
+        id=row.id,
+        matter_id=row.matter_id,
+        created_by=row.created_by,
         worksheet=PatentWorksheet.model_validate(payload["worksheet"]),
     )
 
 
-async def save_snapshot(db: AsyncSession, matter_id: str, user_id: str, worksheet: PatentWorksheet) -> PatentSnapshot:
+async def save_snapshot(
+    db: AsyncSession, matter_id: str, user_id: str, worksheet: PatentWorksheet
+) -> PatentSnapshot:
     await require_matter(db, matter_id, user_id, write=True)
     row_id = str(uuid.uuid4())
-    row = PatentSnapshot(id=row_id, matter_id=matter_id, created_by=user_id,
-                         ciphertext=encode_snapshot(row_id, matter_id, worksheet))
+    row = PatentSnapshot(
+        id=row_id,
+        matter_id=matter_id,
+        created_by=user_id,
+        ciphertext=encode_snapshot(row_id, matter_id, worksheet),
+    )
     db.add(row)
     await db.flush()
     return row
@@ -59,6 +69,10 @@ async def save_snapshot(db: AsyncSession, matter_id: str, user_id: str, workshee
 
 async def read_latest(db: AsyncSession, matter_id: str, user_id: str) -> PatentSnapshot | None:
     await require_matter(db, matter_id, user_id)
-    result = await db.execute(select(PatentSnapshot).where(PatentSnapshot.matter_id == matter_id)
-                              .order_by(PatentSnapshot.created_at.desc(), PatentSnapshot.id.desc()).limit(1))
+    result = await db.execute(
+        select(PatentSnapshot)
+        .where(PatentSnapshot.matter_id == matter_id)
+        .order_by(PatentSnapshot.created_at.desc(), PatentSnapshot.id.desc())
+        .limit(1)
+    )
     return result.scalar_one_or_none()

@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { DISCLOSURE_FIELDS, STATUS_LABELS, emptyDisclosure, emptyRow, reviewQuestions, makeReviewPacket } from '../constants/patentStudio';
 import type { ClaimRow, EvidenceStatus } from '../constants/patentStudio';
 import s from './PatentStudioView.module.css';
+import PatentSnapshotControls from './PatentSnapshotControls';
+import type { Worksheet } from './PatentSnapshotControls';
+
+const storagePreview = import.meta.env.DEV && import.meta.env.VITE_PATENT_PREVIEW_ENABLED === 'true';
 
 export default function PatentStudioView() {
   const [disclosure, setDisclosure] = useState(emptyDisclosure);
@@ -14,6 +18,14 @@ export default function PatentStudioView() {
 
   function updateRow(id: number, patch: Partial<Omit<ClaimRow, 'id'>>) {
     setRows(previous => previous.map(row => row.id === id ? { ...row, ...patch } : row));
+  }
+
+  function restoreWorksheet(value: Worksheet) {
+    setDisclosure(value.disclosure);
+    setRows(value.claim_mappings.map((row, index) => ({ ...row, id: index + 1 })));
+    nextId.current = value.claim_mappings.length + 1;
+    setReviewerNotes(value.reviewer_notes);
+    setConfirmed(false);
   }
 
   function exportPacket() {
@@ -36,7 +48,7 @@ export default function PatentStudioView() {
     <section className={s.page} aria-labelledby="patent-studio-heading">
       <h1 id="patent-studio-heading">Patent Analysis Studio</h1>
       <p>Organize invention disclosures, claim elements and candidate evidence for practitioner review.</p>
-      <aside className={s.notice}>Development preview: fictional information only. Entries are kept in this page's memory, not saved to a matter, server, browser storage or AI provider by this module. Leaving or refreshing the page discards entries. Exports are unencrypted local files. This is not a patentability determination or a deadline calculator.</aside>
+      <aside className={s.notice}>Development preview: fictional information only. Entries are kept in this page's memory unless explicitly saved through the opt-in development storage panel. Leaving or refreshing discards unsaved entries. No AI provider is used. Exports are unencrypted local files. This is not a patentability determination or a deadline calculator.</aside>
       <div className={s.grid}>
         <section className={s.panel} aria-labelledby="disclosure-heading">
           <h2 id="disclosure-heading">1. Invention disclosure</h2>
@@ -68,12 +80,13 @@ export default function PatentStudioView() {
       <section className={s.panel} aria-labelledby="review-heading">
         <h2 id="review-heading">3. Practitioner review</h2>
         <p>Documentation checks only. Resolve eligibility, novelty, obviousness, written description, enablement and inventorship with the applicable authorities and facts.</p>
-        <Link to="/ip-research">Open official IP research directory (leaving discards this draft)</Link>
+        <Link to="/ip-research">Open official IP research directory (leaving discards unsaved entries)</Link>
         <ul>{questions.map((question, index) => <li key={index}>{question}</li>)}</ul>
         <label className={s.field}>Practitioner notes<textarea rows={4} maxLength={12000} value={reviewerNotes} onChange={event => setReviewerNotes(event.target.value)} /></label>
         <label className={s.confirm}><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /> I confirm this contains fictional data only and understand the export is unencrypted and unverified.</label>
         <button type="button" className={s.primary} disabled={!confirmed} onClick={exportPacket}>Export review draft (JSON)</button>
       </section>
+      {storagePreview && <PatentSnapshotControls confirmed={confirmed} worksheet={() => ({ fictional_data_only: true, disclosure, claim_mappings: rows.map(row => ({ element: row.element, disclosureSupport: row.disclosureSupport, reference: row.reference, referencePassage: row.referencePassage, status: row.status, notes: row.notes })), reviewer_notes: reviewerNotes })} onLoad={restoreWorksheet} />}
     </section>
   );
 }

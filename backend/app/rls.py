@@ -252,8 +252,8 @@ CHILD_TABLES: tuple[tuple[str, str, str], ...] = (
     ("workflow_runs", "workflows", "workflow_id"),
     ("workflow_step_runs", "workflow_runs", "run_id"),
 )
-RLS_TABLES: tuple[str, ...] = ("patent_snapshots",) + tuple(t for t, *_ in OWNED_TABLES) + tuple(
-    t for t, *_ in CHILD_TABLES
+RLS_TABLES: tuple[str, ...] = (
+    ("patent_snapshots",) + tuple(t for t, *_ in OWNED_TABLES) + tuple(t for t, *_ in CHILD_TABLES)
 )
 
 # One statement each: asyncpg prepares statements, so they cannot be batched.

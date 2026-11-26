@@ -1,4 +1,5 @@
 """Bounded, manual patent worksheet input. No client-asserted verification."""
+
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
