@@ -30,6 +30,15 @@ Public, read-only, not tenant data (no RLS, served to every signed-in user):
 - `legal_sources(id, name, edition, revision, published_on, source_url, fetched_at)`
 - `legal_source_sections(id, source_id, section_id, title, text, text_sha256, url, revision_note)`
 
+## PR 1 as built (differs from the sketch above)
+
+PR 1 ships the smallest safe slice; the rest of the model above lands with the PR that needs it.
+- `patent_workspaces(id, owner_id, matter_id NOT NULL, title, reviewer_notes_enc, created_at, updated_at)`: no `status` column yet (nothing reads it until approvals, PR 5).
+- `invention_disclosures` as sketched (append-only, `fields_enc` encrypted, `content_sha256` of the canonical plaintext; an unchanged save adds no version).
+- `claim_elements(id, workspace_id, position, payload_enc, status, verified, updated_by, updated_at)` holds one chart row as the current UI does (element, disclosure support, one candidate reference, pinpoint passage, notes), encrypted as one payload. The multi-reference `claim_mappings` table, with `reference_document_id` and offsets, is deferred to PR 3, where a passage can be checked against an indexed document. Until then `verified` is always false: the request schema forbids the field, and only server-side verification may set it.
+- `patent_reviews` and the `patent.write` / `patent.approve` permissions are deferred to PRs 4–5. PR 1 gates every route with the existing `contracts.use`. Only the owner writes or deletes, members read, and everyone else gets 404.
+- The tables are in `rls.OWNED_TABLES` / `CHILD_TABLES` (migration 028 installs their policies on PostgreSQL), and in the wall, offboarding-transfer and account-purge paths.
+
 ## Capabilities, in PR order
 
 1. **Persistent Patent Studio.** Replace in-memory state with the tables above via a `routers/patent.py` that uses the matter dependency for every route. Disclosures, claim elements and mappings are saved and versioned. Pinpoint mappings are verified server-side with `quote_verify`. Tests: CRUD, and cross-user and cross-matter denial extending `test_matter_isolation.py`. The new tables are added to `test_rls_postgres.py`.
