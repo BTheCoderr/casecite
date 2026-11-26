@@ -151,6 +151,7 @@ PRIVILEGED_ACTIONS: frozenset[str] = frozenset(
         "ethical_wall_removed",
         "legal_hold_set",
         "matter_deleted",
+        "patent_snapshot_saved",
         "matter_member_added",
         "matter_member_removed",
         "matter_ownership_transferred",

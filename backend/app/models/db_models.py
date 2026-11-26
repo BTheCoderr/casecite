@@ -78,3 +78,6 @@ from app.models.workflows import (  # noqa: F401
     WorkflowStepRun,
     WorkflowVersion,
 )
+
+# Counsel patent review snapshots
+from app.models.patent import PatentSnapshot  # noqa: F401

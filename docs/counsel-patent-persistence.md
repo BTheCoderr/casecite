@@ -1,0 +1,7 @@
+# Patent persistence: first backend slice
+
+Fictional data only. This additive migration and backend preview are NOT a finished Patent Studio. The UI still uses its previous local-only state. The two API endpoints require DEBUG and PATENT_PREVIEW_ENABLED (default false), authenticated permissions, and matter membership without an ethical wall. Only the matter owner with matters.manage can save. The existing documents.view permission gates reads. Each save creates an immutable encrypted snapshot of the manual worksheet; no update endpoint, approval, verified claim, AI call or external provider. Responses are marked no-store. Audit records contain IDs, never worksheet contents.
+
+PostgreSQL policy is membership-only (apart from the existing explicit system bypass); creator identity confers no access. SQLite uses application checks only. A snapshot is bound to its matter and ID inside the encrypted payload. Do not use real client data or enable in production. New saves are blocked on held/retention-configured matters. No deletion endpoint; matter cascade is schema-level, not a substitute for lifecycle integration. Before release, implement retention and user deletion/export/wall/hold lifecycle handling, verify key rotation and backup recovery, add real PostgreSQL and HTTP authorization tests, and connect the UI. Development encryption secrets must be stable across restarts; do not reuse production secrets. No production migration authorized.
+
+Independent Counsel addition to CaseCite, Copyright 2026 Thomas Unise, Apache-2.0. Preserve LICENSE and NOTICE.md.
