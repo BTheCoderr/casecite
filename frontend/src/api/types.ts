@@ -1775,6 +1775,62 @@ export interface ConversationExportPayload {
   messages: ConversationExportMessage[];
 }
 
+// ── Patent Studio (Counsel) ────────────────────────────────────────────
+export type PatentElementStatus = 'unreviewed' | 'candidate' | 'gap' | 'unclear';
+
+export interface PatentDisclosureFields {
+  title: string;
+  problem: string;
+  solution: string;
+  alternatives: string;
+  disclosures: string;
+  contributions: string;
+  officeAction: string;
+}
+
+export interface PatentDisclosureVersion {
+  version: number;
+  content_sha256: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface PatentDisclosure extends PatentDisclosureVersion {
+  fields: PatentDisclosureFields;
+}
+
+export interface PatentClaimElementInput {
+  element: string;
+  disclosureSupport: string;
+  reference: string;
+  referencePassage: string;
+  status: PatentElementStatus;
+  notes: string;
+}
+
+export interface PatentClaimElement extends PatentClaimElementInput {
+  id: string;
+  position: number;
+  /** Set only by server-side verification; never sent by the client. */
+  verified: boolean;
+}
+
+export interface PatentWorkspaceSummary {
+  id: string;
+  matter_id: string;
+  title: string;
+  role: 'owner' | 'member' | string;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface PatentWorkspaceDetail extends PatentWorkspaceSummary {
+  reviewer_notes: string;
+  disclosure: PatentDisclosure | null;
+  disclosure_versions: number;
+  elements: PatentClaimElement[];
+}
+
 export interface ApiClient {
   token: string | null;
 
@@ -1922,6 +1978,16 @@ export interface ApiClient {
   getMatterActivity(matterId: string, limit?: number): Promise<{ events: MatterActivityEvent[] }>;
   /** Replace the matter's facts (empty clears them). 403 when the caller's role can't edit. */
   setMatterFacts(matterId: string, facts: string): Promise<MatterFacts>;
+
+  // Patent Studio (Counsel)
+  listPatentWorkspaces(matterId?: string | null): Promise<{ workspaces: PatentWorkspaceSummary[] }>;
+  createPatentWorkspace(matterId: string, title: string): Promise<PatentWorkspaceDetail>;
+  getPatentWorkspace(workspaceId: string): Promise<PatentWorkspaceDetail>;
+  updatePatentWorkspace(workspaceId: string, changes: { title?: string; reviewer_notes?: string }): Promise<PatentWorkspaceDetail>;
+  deletePatentWorkspace(workspaceId: string): Promise<{ status: string; id: string }>;
+  savePatentDisclosure(workspaceId: string, fields: PatentDisclosureFields): Promise<{ created: boolean; disclosure: PatentDisclosure }>;
+  listPatentDisclosureVersions(workspaceId: string): Promise<{ versions: PatentDisclosureVersion[] }>;
+  replacePatentClaimElements(workspaceId: string, elements: PatentClaimElementInput[]): Promise<PatentClaimElement[]>;
 
   // Tabular review
   listReviewTables(): Promise<{ tables: ReviewTableSummary[] }>;

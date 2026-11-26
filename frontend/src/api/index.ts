@@ -10,6 +10,7 @@ import './workspaceSessions';
 import './documents';
 import './matters';
 import './reviewTables';
+import './patent';
 import './deepResearch';
 import './workflows';
 import './settings';

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { installApiMocks, loginAs } from './helpers/auth';
+import { fulfillJson, installApiMocks, loginAs } from './helpers/auth';
+import type { MockOverride } from './helpers/auth';
 
 // Counsel additions: IP Research directory and Patent Analysis Studio, in a
 // real browser against the mocked API. Fictional data only.
@@ -73,5 +74,78 @@ test.describe('Counsel IP routes', () => {
     expect(packet.openQuestions.some((q: string) => q.includes('Practitioner must verify'))).toBe(true);
     // The studio itself sends nothing to the API.
     expect(state.calls.slice(before).filter((c) => !c.startsWith('GET '))).toEqual([]);
+  });
+
+  test('Patent Studio saves to the selected matter only when asked, and reopens the saved workspace', async ({ page }) => {
+    const matter = { id: 'm-fict', name: 'Fictional Valves Inc.', client_name: null, is_personal: false, owner_id: 'test-user', role: 'owner', member_count: 1 };
+    const bodies: Record<string, unknown>[] = [];
+    let saved: Record<string, unknown> | null = null;
+    const now = new Date().toISOString();
+    const summary = { id: 'pw-fict', matter_id: matter.id, title: '', role: 'owner', created_at: now, updated_at: now };
+    const reply = async (route: Parameters<MockOverride>[0], status: number, payload: unknown) => {
+      await fulfillJson(route, status, payload);
+      return true;
+    };
+    const override: MockOverride = async (route, url, method) => {
+      const path = url.pathname.replace(/^.*\/api\/v1/, '');
+      if (path === '/matters' && method === 'GET') return reply(route, 200, { matters: [matter] });
+      if (!path.startsWith('/patent-workspaces')) return false;
+      const body = route.request().postData();
+      if (body) bodies.push({ method, path, ...JSON.parse(body) });
+      if (path === '/patent-workspaces' && method === 'GET') {
+        return reply(route, 200, { workspaces: saved ? [summary] : [] });
+      }
+      if (path === '/patent-workspaces' && method === 'POST') {
+        summary.title = JSON.parse(body!).title;
+        return reply(route, 201, { ...summary, reviewer_notes: '', disclosure: null, disclosure_versions: 0, elements: [] });
+      }
+      if (path === '/patent-workspaces/pw-fict' && method === 'PATCH') return reply(route, 200, { ...summary });
+      if (path === '/patent-workspaces/pw-fict/disclosures' && method === 'POST') {
+        saved = { ...(saved ?? {}), fields: JSON.parse(body!).fields };
+        return reply(route, 200, { created: true, disclosure: { version: 1, content_sha256: 'f'.repeat(64), created_by: 'test-user', created_at: now, fields: saved.fields } });
+      }
+      if (path === '/patent-workspaces/pw-fict/claim-elements' && method === 'PUT') {
+        const elements = (JSON.parse(body!).elements as Record<string, unknown>[]).map((e, i) => ({ ...e, id: `e${i}`, position: i, verified: false }));
+        saved = { ...(saved ?? {}), elements };
+        return reply(route, 200, elements);
+      }
+      if (path === '/patent-workspaces/pw-fict' && method === 'GET') {
+        return reply(route, 200, {
+          ...summary, reviewer_notes: '', disclosure_versions: 1, elements: saved?.elements ?? [],
+          disclosure: { version: 1, content_sha256: 'f'.repeat(64), created_by: 'test-user', created_at: now, fields: saved?.fields },
+        });
+      }
+      return false;
+    };
+    const state = await loginAs(page, '/patent-studio', { overrides: [override] });
+    const panel = page.getByRole('region', { name: 'Matter workspace' });
+    await expect(panel.getByRole('combobox').first()).toHaveValue(matter.id);
+    const before = state.calls.length;
+    await page.getByLabel('Working invention title').fill('Fictional self-cleaning valve');
+    await page.getByLabel('Claim element').first().fill('A valve body with a rotating scraper');
+    await page.getByLabel('Reviewer mapping status').first().selectOption('gap');
+    // Typing sends nothing.
+    expect(state.calls.slice(before).filter((c) => !c.startsWith('GET ') && !c.startsWith('OPTIONS '))).toEqual([]);
+
+    await page.getByRole('button', { name: 'Save to matter' }).click();
+    await expect(page.getByText('Saved to matter. Disclosure version 1; 1 claim elements.')).toBeVisible();
+    expect(bodies.map((b) => `${b.method} ${b.path}`)).toEqual([
+      'POST /patent-workspaces',
+      'PATCH /patent-workspaces/pw-fict',
+      'POST /patent-workspaces/pw-fict/disclosures',
+      'PUT /patent-workspaces/pw-fict/claim-elements',
+    ]);
+    expect(bodies[0]).toMatchObject({ matter_id: matter.id, title: 'Fictional self-cleaning valve' });
+    const chart = bodies[3] as { elements: Record<string, unknown>[] };
+    expect(chart.elements[0]).toMatchObject({ element: 'A valve body with a rotating scraper', status: 'gap' });
+    expect(chart.elements[0]).not.toHaveProperty('verified');
+    expect(chart.elements[0]).not.toHaveProperty('id');
+
+    // A fresh visit starts empty; opening the saved workspace restores it.
+    await page.reload();
+    await expect(page.getByLabel('Working invention title')).toHaveValue('');
+    await page.getByRole('region', { name: 'Matter workspace' }).getByLabel(/Saved workspace/).selectOption('pw-fict');
+    await expect(page.getByLabel('Working invention title')).toHaveValue('Fictional self-cleaning valve');
+    await expect(page.getByLabel('Claim element').first()).toHaveValue('A valve body with a rotating scraper');
   });
 });
