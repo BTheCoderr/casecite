@@ -267,7 +267,9 @@ def client_for_model(client, model: str | None):
     )
 
 
-async def openai_chat(client, *, purpose: str = "chat", **kwargs):
+async def openai_chat(
+    client, *, purpose: str = "chat", required_base_url: str | None = None, **kwargs
+):
     """``chat.completions.create`` with automatic parameter negotiation.
 
     Every OpenAI chat call in the app goes through here so new models that
@@ -279,6 +281,8 @@ async def openai_chat(client, *, purpose: str = "chat", **kwargs):
     (``purpose`` says what the call was for).
     """
     client = client_for_model(client, kwargs.get("model"))
+    if required_base_url and _norm_url(client.base_url) != _norm_url(required_base_url):
+        raise ValueError("Model endpoint differs from the explicitly required endpoint")
     enforce_openai_client(client)
     attempts = 0
     while True:

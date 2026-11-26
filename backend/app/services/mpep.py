@@ -83,7 +83,9 @@ def search(corpus: Corpus, query: str) -> SearchResult:
     terms = re.findall(r"[\w.]+", query.casefold())
     hits: list[Hit] = []
     if not terms or len(terms) > 12:
-        return SearchResult(indexed_pages=len(corpus.pages), edition_label=corpus.edition_label, hits=[])
+        return SearchResult(
+            indexed_pages=len(corpus.pages), edition_label=corpus.edition_label, hits=[]
+        )
     for page in corpus.pages:
         # Search the full imported page, returning only exact matching passages.
         # Paragraph boundaries are retained by the operator's HTML extractor.

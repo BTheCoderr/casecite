@@ -1,7 +1,6 @@
 """Fetch a fixed set of official MPEP HTML pages into a reviewable JSON file.
 
-Run from backend/: python -m app.scripts.ingest_mpep is NOT required;
-use PYTHONPATH=backend python scripts/ingest_mpep.py from the repository root.
+Run PYTHONPATH=backend python scripts/ingest_mpep.py from the repository root.
 No tenant input, redirects, model calls, or automatic activation.
 """
 
@@ -12,14 +11,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
+from app.services import mpep
 from lxml import html
-
-from app.services.mpep import SECTIONS, Corpus, Page, digest, source_url
 
 MAX_HTML = 4 * 1024 * 1024
 
 
-def extract(section: str, raw: bytes, fetched_at: str) -> Page:
+def extract(section: str, raw: bytes, fetched_at: str) -> mpep.Page:
     document = html.fromstring(raw)
     for node in document.xpath("//script|//style|//nav|//header|//footer|//noscript"):
         node.drop_tree()
@@ -45,19 +43,19 @@ def extract(section: str, raw: bytes, fetched_at: str) -> Page:
         if value:
             blocks.append(value)
     text = "\n\n".join(blocks)
-    return Page(
+    return mpep.Page(
         section=section,
         heading=title,
-        url=source_url(section),
+        url=mpep.source_url(section),
         fetched_at=fetched_at,
         text=text,
-        sha256=digest(text),
+        sha256=mpep.digest(text),
         html_sha256=hashlib.sha256(raw).hexdigest(),
     )
 
 
-def fetch_page(client: httpx.Client, section: str) -> Page:
-    with client.stream("GET", source_url(section)) as response:
+def fetch_page(client: httpx.Client, section: str) -> mpep.Page:
+    with client.stream("GET", mpep.source_url(section)) as response:
         response.raise_for_status()
         if "text/html" not in response.headers.get("content-type", "").lower():
             raise ValueError("Expected official HTML")
@@ -75,8 +73,8 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     with httpx.Client(follow_redirects=False, timeout=30, trust_env=False) as client:
-        pages = [fetch_page(client, section) for section in SECTIONS]
-    corpus = Corpus(edition_label=args.edition_label, pages=pages)
+        pages = [fetch_page(client, section) for section in mpep.SECTIONS]
+    corpus = mpep.Corpus(edition_label=args.edition_label, pages=pages)
     # Exclusive creation: never overwrite an earlier captured revision.
     with args.output.open("x", encoding="utf-8") as stream:
         stream.write(corpus.model_dump_json(indent=2))
