@@ -16,3 +16,5 @@
 .check { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0; }
 .check input { flex: 0 0 auto; }
 .panel :focus-visible { outline: 2px solid #0D766E; outline-offset: 3px; }
+
+.excerpt { white-space: pre-wrap; overflow-wrap: anywhere; border-left: 3px solid var(--primary-600); padding: 8px 12px; margin: 12px 0; }

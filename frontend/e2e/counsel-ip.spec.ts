@@ -58,6 +58,18 @@ test.describe('Counsel IP routes', () => {
     expect(state.calls.slice(before).filter(c => !c.startsWith('GET '))).toEqual([]);
   });
 
+  test('Office Action workbench detects literal references and keeps review local', async ({ page }) => {
+    const state = await loginAs(page, '/ip-research');
+    const panel = page.getByRole('region', { name: 'Office Action review workbench' });
+    const before = state.calls.length;
+    await panel.getByLabel('Fictional Office Action text').fill('Synthetic: Claim 1 is discussed under 35 U.S.C. § 103.');
+    await panel.getByRole('button', { name: 'Scan explicit references' }).click();
+    await expect(panel.getByText(/2 candidate mentions found/)).toBeVisible();
+    await expect(panel.getByRole('link', { name: /MPEP § 2141/ })).toHaveAttribute('href', 'https://www.uspto.gov/web/offices/pac/mpep/s2141.html');
+    await expect(panel.getByRole('button', { name: 'Export Office Action review (JSON)' })).toBeDisabled();
+    expect(state.calls.slice(before).filter(c => !c.startsWith('GET ') && !c.startsWith('OPTIONS '))).toEqual([]);
+  });
+
   test('Patent Studio export is gated and contains only the entered fictional data', async ({ page }) => {
     const state = await loginAs(page, '/patent-studio');
     await expect(page.getByRole('heading', { name: 'Patent Analysis Studio' })).toBeVisible();
