@@ -46,6 +46,13 @@ from app.models.enums import (  # noqa: F401
 # Matters & membership (collaboration/isolation unit)
 from app.models.matters import Matter, MatterMember  # noqa: F401
 
+# Patent Studio (Counsel): matter-scoped workspaces, disclosures, claim chart
+from app.models.patent import (  # noqa: F401
+    ClaimElement,
+    InventionDisclosure,
+    PatentWorkspace,
+)
+
 # Document registry (which documents exist) and shared version counters
 from app.models.registry import (  # noqa: F401
     DocumentFolderRow,

@@ -27,6 +27,7 @@ from app.exceptions import ServiceUnavailableError
 from app.models.chat_sessions import ChatSessionDB
 from app.models.clause_intel import ContractAnalysisRun
 from app.models.matters import MATTER_ROLE_MEMBER, MATTER_ROLE_OWNER, Matter, MatterMember
+from app.models.patent import PatentWorkspace
 from app.models.review_tables import ReviewSchema, ReviewTable
 from app.models.workflows import Workflow
 
@@ -44,6 +45,7 @@ class OwnedWork:
     review_tables: int = 0
     review_schemas: int = 0
     workflows: int = 0
+    patent_workspaces: int = 0
 
     @property
     def total(self) -> int:
@@ -81,6 +83,9 @@ async def owned_work(session: AsyncSession, user_id: str) -> OwnedWork:
         review_tables=await _count(session, ReviewTable, ReviewTable.owner_id == user_id),
         review_schemas=await _count(session, ReviewSchema, ReviewSchema.owner_id == user_id),
         workflows=await _count(session, Workflow, Workflow.owner_id == user_id),
+        patent_workspaces=await _count(
+            session, PatentWorkspace, PatentWorkspace.owner_id == user_id
+        ),
     )
 
 
@@ -180,7 +185,7 @@ async def transfer_matters(session: AsyncSession, from_user: str, to_user: str) 
 
 async def transfer_rows(session: AsyncSession, from_user: str, to_user: str) -> dict[str, int]:
     """Re-own the relational work product: conversations, analyses, review
-    tables, saved schemas and workflows."""
+    tables, saved schemas, workflows and patent workspaces."""
     counts: dict[str, int] = {}
     for key, model, column in (
         ("chat_sessions", ChatSessionDB, ChatSessionDB.user_id),
@@ -188,6 +193,7 @@ async def transfer_rows(session: AsyncSession, from_user: str, to_user: str) -> 
         ("review_tables", ReviewTable, ReviewTable.owner_id),
         ("review_schemas", ReviewSchema, ReviewSchema.owner_id),
         ("workflows", Workflow, Workflow.owner_id),
+        ("patent_workspaces", PatentWorkspace, PatentWorkspace.owner_id),
     ):
         result = await session.execute(
             update(model).where(column == from_user).values({column.key: to_user})

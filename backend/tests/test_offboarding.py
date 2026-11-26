@@ -265,6 +265,7 @@ class TestDeleteDecision:
                 "review_tables": 1,
                 "review_schemas": 1,
                 "workflows": 1,
+                "patent_workspaces": 0,
             }
             assert users.get(uid) is None
             # The document is now the colleague's, in the same matter.

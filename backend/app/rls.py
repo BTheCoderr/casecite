@@ -236,6 +236,7 @@ OWNED_TABLES: tuple[tuple[str, str, str | None], ...] = (
     ("workflows", "owner_id", "matter_id"),
     ("deep_research_runs", "owner_id", "matter_id"),
     ("workspace_sessions", "user_id", "matter_id"),
+    ("patent_workspaces", "owner_id", "matter_id"),
 )
 # (table, parent table, key column) — visible when the parent row is.
 CHILD_TABLES: tuple[tuple[str, str, str], ...] = (
@@ -251,6 +252,8 @@ CHILD_TABLES: tuple[tuple[str, str, str], ...] = (
     ("workflow_versions", "workflows", "workflow_id"),
     ("workflow_runs", "workflows", "workflow_id"),
     ("workflow_step_runs", "workflow_runs", "run_id"),
+    ("invention_disclosures", "patent_workspaces", "workspace_id"),
+    ("claim_elements", "patent_workspaces", "workspace_id"),
 )
 RLS_TABLES: tuple[str, ...] = tuple(t for t, *_ in OWNED_TABLES) + tuple(
     t for t, *_ in CHILD_TABLES
@@ -306,19 +309,29 @@ def _policy(table: str, predicate: str) -> list[str]:
     ]
 
 
-def rls_enable_statements() -> list[str]:
-    """DDL that installs the fence (idempotent)."""
-    statements: list[str] = list(RLS_FUNCTION_STATEMENTS)
+def table_policy_statements(only: tuple[str, ...] | None = None) -> list[str]:
+    """The per-table policy DDL, for every RLS table or only those named
+    (a later migration that adds tables installs just theirs)."""
+    statements: list[str] = []
     for table, owner, matter in OWNED_TABLES:
+        if only is not None and table not in only:
+            continue
         matter_expr = f"{table}.{matter}" if matter else "NULL"
         statements += _policy(table, f"app_rls_visible({table}.{owner}, {matter_expr})")
     for table, parent, key in CHILD_TABLES:
+        if only is not None and table not in only:
+            continue
         # DDL built from the identifiers in CHILD_TABLES above, never from input.
         statements += _policy(
             table,
             f"EXISTS (SELECT 1 FROM {parent} p WHERE p.id = {table}.{key})",  # nosec B608
         )
     return statements
+
+
+def rls_enable_statements() -> list[str]:
+    """DDL that installs the fence (idempotent)."""
+    return list(RLS_FUNCTION_STATEMENTS) + table_policy_statements()
 
 
 def rls_disable_statements() -> list[str]:
