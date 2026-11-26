@@ -44,6 +44,20 @@ test.describe('Counsel IP routes', () => {
     expect(state.calls.slice(before).filter((c) => !c.startsWith('GET '))).toEqual([]);
   });
 
+  test('Prior art workbench plans locally and never submits search terms', async ({ page }) => {
+    const state = await loginAs(page, '/ip-research');
+    const panel = page.getByRole('region', { name: 'Prior art discovery workbench' });
+    const before = state.calls.length;
+    await panel.getByLabel('Technical feature').fill('fictional valve');
+    await panel.getByLabel('Alternate terms (comma or newline separated)').fill('scraper');
+    await expect(panel.getByText('"fictional valve" OR "scraper"', { exact: true }).first()).toBeVisible();
+    await expect(panel.getByRole('link', { name: 'USPTO Patent Public Search' })).toHaveAttribute('href', 'https://www.uspto.gov/patents/search/patent-public-search');
+    await panel.getByRole('button', { name: 'Add candidate reference' }).click();
+    await panel.getByLabel('Reference identifier').fill('Fictional A');
+    await expect(panel.getByRole('button', { name: 'Export prior art notes (JSON)' })).toBeDisabled();
+    expect(state.calls.slice(before).filter(c => !c.startsWith('GET '))).toEqual([]);
+  });
+
   test('Patent Studio export is gated and contains only the entered fictional data', async ({ page }) => {
     const state = await loginAs(page, '/patent-studio');
     await expect(page.getByRole('heading', { name: 'Patent Analysis Studio' })).toBeVisible();

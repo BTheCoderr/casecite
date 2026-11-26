@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { searchIpSources } from '../constants/ipSources';
 import StoredMpepSearch from './StoredMpepSearch';
+import PriorArtWorkbench from './PriorArtWorkbench';
 import s from './IpResearchView.module.css';
 
 export default function IpResearchView() {
@@ -24,6 +25,7 @@ export default function IpResearchView() {
       ))}</ul> : <p>No matching references. Try a broader topic or use the <a href="https://www.uspto.gov/web/offices/pac/mpep/index.html" target="_blank" rel="noopener noreferrer">official MPEP index</a>.</p>}
       <p className={s.meta}>This directory does not search the full MPEP, generate citations or decide patentability. A qualified practitioner must verify applicable law and facts.</p>
       <StoredMpepSearch />
+      <PriorArtWorkbench />
     </section>
   );
 }
