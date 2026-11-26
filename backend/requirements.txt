@@ -113,7 +113,8 @@ pyotp==2.9.0
 cryptography==50.0.2
 lxml==6.1.1
 
-# Transitive floors: urllib3 < 2.8.0 and oauthlib < 4.0.0 carry advisories
+# Transitive floors: urllib3 < 2.8.0 and oauthlib < 4.0.1 carry advisories
 # (pip-audit, 2026-10-04)
 urllib3>=2.8.0
-oauthlib>=4.0.0
+oauthlib>=4.0.1
+dnspython>=2.9.2  # CVE-2026-128089

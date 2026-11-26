@@ -85,7 +85,9 @@ class TestTotp:
         secret = mfa.generate_secret()
         uri = mfa.provisioning_uri(secret, "user@example.com")
         assert uri.startswith("otpauth://totp/")
-        assert "CaseCite" in uri
+        # The authenticator app shows the issuer; it must name the product.
+        assert "issuer=SmartProBono%20Counsel" in uri
+        assert uri.startswith("otpauth://totp/SmartProBono%20Counsel:")
 
 
 class TestMfaRouterContract:

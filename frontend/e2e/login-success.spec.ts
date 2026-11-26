@@ -16,7 +16,7 @@ test.describe('Login', () => {
     await page.goto('/');
 
     // Logged-out shell: auth overlay in the main area, locked sidebar.
-    await expect(page.getByRole('heading', { name: 'Welcome to CaseCite' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to SmartProBono Counsel' })).toBeVisible();
     const sidebar = page.locator('aside[data-layout="left-sidebar"]');
     await expect(sidebar.locator('button[class*="modeBtn"]').first()).toHaveClass(/Locked/);
 
@@ -32,7 +32,7 @@ test.describe('Login', () => {
     // Modal gone, header shows the user, overlay replaced by the research view.
     await expect(loginModal(page)).toHaveCount(0);
     await expectSignedIn(page);
-    await expect(page.getByRole('heading', { name: 'Welcome to CaseCite' })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Welcome to SmartProBono Counsel' })).toHaveCount(0);
     await expect(page.getByText('Signed in successfully')).toBeVisible();
 
     // Settings is only offered to signed-in users.

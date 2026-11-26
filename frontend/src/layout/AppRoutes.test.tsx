@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 
 // Mock lazy-loaded views to avoid real imports
+vi.mock('../views/PatentStudioView', () => ({ default: () => <div>PatentStudioView</div> }));
 vi.mock('../views/ResearchView', () => ({ default: () => <div>ResearchView</div> }));
 vi.mock('../views/RagDocsView', () => ({ default: () => <div>RagDocsView</div> }));
 vi.mock('../views/JudgeIntelView', () => ({ default: () => <div>JudgeIntelView</div> }));
@@ -38,6 +39,17 @@ describe('AppRoutes', () => {
   it('renders ResearchView on /research', async () => {
     renderRoute('/research');
     expect(await screen.findByText('ResearchView')).toBeInTheDocument();
+  });
+
+  it('requires authentication for Patent Studio', () => {
+    useAuthStore.setState({ isAuthenticated: false });
+    renderRoute('/patent-studio');
+    expect(screen.getByText('AuthOverlay')).toBeInTheDocument();
+  });
+
+  it('renders Patent Studio when authenticated', async () => {
+    renderRoute('/patent-studio');
+    expect(await screen.findByText('PatentStudioView')).toBeInTheDocument();
   });
 
   it('redirects / to /research', async () => {

@@ -70,6 +70,8 @@ _COMMON_PASSWORD_WORDS = frozenset(
         "test",
         "testing",
         "casecite",
+        "smartprobono",
+        "counsel",
         "lawyer",
         "attorney",
         "paralegal",

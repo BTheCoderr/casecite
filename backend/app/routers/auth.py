@@ -642,7 +642,7 @@ async def login_with_azure(
                     success=False,
                 )
                 raise ForbiddenError(
-                    "No CaseCite account exists for this identity. "
+                    "No SmartProBono Counsel account exists for this identity. "
                     "Ask an administrator to invite you.",
                 )
             # A fresh local id, not the Azure object id: a deleted account's id

@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useKeyboardShortcuts, SHORTCUTS_LIST } from './useKeyboardShortcuts';
+import { ANALYSIS_MODES } from '../constants/analysisModes';
 
 function fireKey(key: string, opts: Partial<KeyboardEventInit> = {}) {
   const event = new KeyboardEvent('keydown', { key, bubbles: true, ...opts });
@@ -81,6 +82,16 @@ describe('useKeyboardShortcuts', () => {
     expect(opts.setActiveMode).toHaveBeenCalledWith('clauses');
   });
 
+  it('switches to each registered analysis mode using the advertised shortcuts', () => {
+    const modeIds = ANALYSIS_MODES.map(mode => mode.id);
+    const opts = createOptions({ modeIds });
+    renderHook(() => useKeyboardShortcuts(opts));
+    for (const [index, id] of modeIds.entries()) {
+      fireKey(String(index + 1), { ctrlKey: true, shiftKey: true, code: 'Digit' + (index + 1) });
+      expect(opts.setActiveMode).toHaveBeenLastCalledWith(id);
+    }
+  });
+
   it('leaves the browser-owned shortcuts alone (Ctrl+1 tab switch, Ctrl+P print)', () => {
     const opts = createOptions();
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
@@ -112,7 +123,7 @@ describe('useKeyboardShortcuts', () => {
     const descriptions = SHORTCUTS_LIST.map(s => s.description);
     expect(descriptions).not.toContain('Print current view');
     // The advertised range matches the number of modes that actually exist.
-    expect(SHORTCUTS_LIST.find(s => s.description === 'Switch analysis mode')?.keys).toEqual(['Ctrl', 'Shift', '1-5']);
+    expect(SHORTCUTS_LIST.find(s => s.description === 'Switch analysis mode')?.keys).toEqual(['Ctrl', 'Shift', `1-${ANALYSIS_MODES.length}`]);
     expect(descriptions).toContain('Focus search input');
     expect(descriptions).toContain('Close modal / panel');
   });

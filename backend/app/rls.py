@@ -252,8 +252,8 @@ CHILD_TABLES: tuple[tuple[str, str, str], ...] = (
     ("workflow_runs", "workflows", "workflow_id"),
     ("workflow_step_runs", "workflow_runs", "run_id"),
 )
-RLS_TABLES: tuple[str, ...] = tuple(t for t, *_ in OWNED_TABLES) + tuple(
-    t for t, *_ in CHILD_TABLES
+RLS_TABLES: tuple[str, ...] = (
+    ("patent_snapshots",) + tuple(t for t, *_ in OWNED_TABLES) + tuple(t for t, *_ in CHILD_TABLES)
 )
 
 # One statement each: asyncpg prepares statements, so they cannot be batched.
@@ -318,6 +318,16 @@ def rls_enable_statements() -> list[str]:
             table,
             f"EXISTS (SELECT 1 FROM {parent} p WHERE p.id = {table}.{key})",  # nosec B608
         )
+    # Patent snapshots are matter-only, with no creator/owner exception.
+    statements += _policy(
+        "patent_snapshots",
+        """app_rls_bypassed() OR (
+            EXISTS (SELECT 1 FROM matter_members mm
+                WHERE mm.matter_id = patent_snapshots.matter_id AND mm.user_id = app_rls_user())
+            AND NOT EXISTS (SELECT 1 FROM matter_walls w
+                WHERE w.matter_id = patent_snapshots.matter_id AND w.user_id = app_rls_user())
+        )""",
+    )
     return statements
 
 

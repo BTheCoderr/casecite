@@ -46,6 +46,9 @@ from app.models.enums import (  # noqa: F401
 # Matters & membership (collaboration/isolation unit)
 from app.models.matters import Matter, MatterMember  # noqa: F401
 
+# Counsel patent review snapshots
+from app.models.patent import PatentSnapshot  # noqa: F401
+
 # Document registry (which documents exist) and shared version counters
 from app.models.registry import (  # noqa: F401
     DocumentFolderRow,
