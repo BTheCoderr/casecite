@@ -1775,6 +1775,97 @@ export interface ConversationExportPayload {
   messages: ConversationExportMessage[];
 }
 
+// ── Patent Studio (Counsel) ────────────────────────────────────────────
+export type PatentElementStatus = 'unreviewed' | 'candidate' | 'gap' | 'unclear';
+
+export interface PatentDisclosureFields {
+  title: string;
+  problem: string;
+  solution: string;
+  alternatives: string;
+  disclosures: string;
+  contributions: string;
+  officeAction: string;
+}
+
+export interface PatentDisclosureVersion {
+  version: number;
+  content_sha256: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface PatentDisclosure extends PatentDisclosureVersion {
+  fields: PatentDisclosureFields;
+}
+
+export interface PatentClaimElementInput {
+  element: string;
+  disclosureSupport: string;
+  reference: string;
+  referencePassage: string;
+  status: PatentElementStatus;
+  notes: string;
+}
+
+export interface PatentClaimElement extends PatentClaimElementInput {
+  id: string;
+  position: number;
+  /** Set only by server-side verification; never sent by the client. */
+  verified: boolean;
+}
+
+export interface PatentWorkspaceSummary {
+  id: string;
+  matter_id: string;
+  title: string;
+  role: 'owner' | 'member' | string;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface PatentWorkspaceDetail extends PatentWorkspaceSummary {
+  reviewer_notes: string;
+  disclosure: PatentDisclosure | null;
+  disclosure_versions: number;
+  elements: PatentClaimElement[];
+}
+
+// ── Public legal sources (Counsel) ─────────────────────────────────────
+export interface LegalSource {
+  id: string;
+  name: string;
+  edition: string;
+  revision: string;
+  published_on: string | null;
+  source_url: string;
+  fetched_at: string;
+  section_count: number;
+}
+
+export interface LegalSourceSectionHit {
+  id: string;
+  section_id: string;
+  title: string;
+  /** The section's own revision marker, e.g. "R-10.2019". */
+  revision_note: string;
+  url: string;
+  text_sha256: string;
+  fetched_at: string;
+  snippet: string;
+}
+
+export interface LegalSourceSearchResult {
+  source: LegalSource | null;
+  query: string;
+  results: LegalSourceSectionHit[];
+}
+
+export interface LegalSourceSectionDetail extends Omit<LegalSourceSectionHit, 'snippet'> {
+  text: string;
+  source: LegalSource;
+}
+
 export interface ApiClient {
   token: string | null;
 
@@ -1922,6 +2013,21 @@ export interface ApiClient {
   getMatterActivity(matterId: string, limit?: number): Promise<{ events: MatterActivityEvent[] }>;
   /** Replace the matter's facts (empty clears them). 403 when the caller's role can't edit. */
   setMatterFacts(matterId: string, facts: string): Promise<MatterFacts>;
+
+  // Public legal sources (Counsel)
+  listLegalSources(): Promise<{ sources: LegalSource[] }>;
+  searchLegalSourceSections(q: string, sourceId?: string | null): Promise<LegalSourceSearchResult>;
+  getLegalSourceSection(sectionId: string): Promise<LegalSourceSectionDetail>;
+
+  // Patent Studio (Counsel)
+  listPatentWorkspaces(matterId?: string | null): Promise<{ workspaces: PatentWorkspaceSummary[] }>;
+  createPatentWorkspace(matterId: string, title: string): Promise<PatentWorkspaceDetail>;
+  getPatentWorkspace(workspaceId: string): Promise<PatentWorkspaceDetail>;
+  updatePatentWorkspace(workspaceId: string, changes: { title?: string; reviewer_notes?: string }): Promise<PatentWorkspaceDetail>;
+  deletePatentWorkspace(workspaceId: string): Promise<{ status: string; id: string }>;
+  savePatentDisclosure(workspaceId: string, fields: PatentDisclosureFields): Promise<{ created: boolean; disclosure: PatentDisclosure }>;
+  listPatentDisclosureVersions(workspaceId: string): Promise<{ versions: PatentDisclosureVersion[] }>;
+  replacePatentClaimElements(workspaceId: string, elements: PatentClaimElementInput[]): Promise<PatentClaimElement[]>;
 
   // Tabular review
   listReviewTables(): Promise<{ tables: ReviewTableSummary[] }>;

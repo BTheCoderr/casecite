@@ -806,6 +806,16 @@ async def delete_user(
     await db.execute(sa_delete(ReviewSchema).where(ReviewSchema.owner_id == user_id))
     await db.execute(sa_delete(Workflow).where(Workflow.owner_id == user_id))
 
+    # Patent workspaces: children explicitly, since SQLite may not enforce FKs.
+    from app.models.patent import ClaimElement, InventionDisclosure, PatentWorkspace
+
+    owned_ws = select(PatentWorkspace.id).where(PatentWorkspace.owner_id == user_id)
+    await db.execute(sa_delete(ClaimElement).where(ClaimElement.workspace_id.in_(owned_ws)))
+    await db.execute(
+        sa_delete(InventionDisclosure).where(InventionDisclosure.workspace_id.in_(owned_ws))
+    )
+    await db.execute(sa_delete(PatentWorkspace).where(PatentWorkspace.owner_id == user_id))
+
     # Matters & memberships have no users FK (they tolerate demo/SSO accounts),
     # so purge them explicitly. Remove the user's memberships everywhere, then
     # the matters they own (which cascades those matters' remaining members).

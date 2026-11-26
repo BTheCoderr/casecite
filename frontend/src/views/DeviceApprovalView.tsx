@@ -86,7 +86,7 @@ function DeviceApprovalView() {
             </p>
             <div className={s.actions}>
               <button type="button" className={s.primaryButton} onClick={() => navigate('/research')}>
-                Back to CaseCite
+                Back to SmartProBono Counsel
               </button>
               <button type="button" className={s.secondaryButton} onClick={reset}>
                 Approve another code
@@ -104,7 +104,7 @@ function DeviceApprovalView() {
             </p>
             <div className={s.actions}>
               <button type="button" className={s.primaryButton} onClick={() => navigate('/research')}>
-                Back to CaseCite
+                Back to SmartProBono Counsel
               </button>
               <button type="button" className={s.secondaryButton} onClick={reset}>
                 Enter another code

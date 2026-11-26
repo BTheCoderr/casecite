@@ -239,7 +239,7 @@ class TestRenderRedlineDocx:
         ins_block = xml[xml.index("<w:ins ") : xml.index("</w:ins>")]
         assert proposed in ins_block
         # Revision marks carry author/date/id.
-        assert 'w:author="CaseCite"' in xml
+        assert 'w:author="SmartProBono Counsel"' in xml
         assert "w:date=" in xml
         assert "w:id=" in xml
 

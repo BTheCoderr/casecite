@@ -5,7 +5,7 @@ be a member (adding them is refused with the same generic answer as an
 unknown address, so the wall itself is not disclosed to the inviter), their
 existing membership is removed when the wall goes up, and any work they
 filed under that matter — documents (with their index tags and stored
-files), conversations, analyses, review tables, workflows — passes to the
+files), conversations, analyses, review tables, workflows, patent workspaces — passes to the
 matter's owner, so nothing in the matter stays reachable through ownership.
 The matter is also left out of the admin oversight list for a walled admin.
 
@@ -26,6 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.chat_sessions import ChatSessionDB
 from app.models.clause_intel import ContractAnalysisRun
 from app.models.matters import Matter, MatterMember, MatterWall
+from app.models.patent import PatentWorkspace
 from app.models.review_tables import ReviewTable
 from app.models.workflows import Workflow
 
@@ -113,6 +114,7 @@ async def add_wall(
         ("contract_analyses", ContractAnalysisRun, ContractAnalysisRun.user_id),
         ("review_tables", ReviewTable, ReviewTable.owner_id),
         ("workflows", Workflow, Workflow.owner_id),
+        ("patent_workspaces", PatentWorkspace, PatentWorkspace.owner_id),
     ):
         result = await session.execute(
             update(model)

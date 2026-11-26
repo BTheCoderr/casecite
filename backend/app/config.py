@@ -46,7 +46,7 @@ _REMOVED_SETTINGS = frozenset(
 class Settings(BaseSettings):
     # App
     app_name: str = "CaseCite"
-    app_display_name: str = "CaseCite"
+    app_display_name: str = "SmartProBono Counsel"
     debug: bool = False
     environment: str = "development"
     api_prefix: str = "/api/v1"

@@ -84,3 +84,11 @@ class TestCommonPasswords:
     )
     def test_uncommon_password_accepted(self, password):
         assert validate_password(password) == []
+
+
+class TestProductNameWords:
+    """Counsel: the product names are rejected like the upstream name."""
+
+    @pytest.mark.parametrize("password", ["Casecite2026!!", "Smartprobono2026!", "Counsel20261!!"])
+    def test_product_name_passwords_rejected(self, password):
+        assert validate_password(password) != []

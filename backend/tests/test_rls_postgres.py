@@ -19,6 +19,7 @@ from app import rls
 from app.database import DATABASE_URL, IS_POSTGRES, AsyncSessionLocal, async_engine
 from app.models.chat_sessions import ChatMessageDB, ChatSessionDB
 from app.models.matters import Matter, MatterMember, MatterWall
+from app.models.patent import ClaimElement, InventionDisclosure, PatentWorkspace
 from app.models.workflows import Workflow
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -318,3 +319,74 @@ async def test_the_scope_does_not_leak_between_transactions(rows, scoped_session
         assert rows["u2_private"] in await _chat_ids(scoped_sessions, rows)
     with rls.scoped(rows["u1"]):
         assert rows["u2_private"] not in await _chat_ids(scoped_sessions, rows)
+
+
+async def test_patent_workspaces_and_their_children_are_fenced(rows, scoped_sessions):
+    """Patent Studio rows follow the same fence: owner and matter members
+    see the workspace, its disclosure versions and claim chart; anyone
+    else sees none of them, even with no filter at all."""
+    ws_id = f"pw-{rows['matter']}"[:36]
+    with rls.bypassed("test fixture: seed a patent workspace"):
+        async with AsyncSessionLocal() as db:
+            db.add(
+                PatentWorkspace(
+                    id=ws_id,
+                    owner_id=rows["u1"],
+                    matter_id=rows["matter"],
+                    title="fictional",
+                    created_at=_now(),
+                    updated_at=_now(),
+                )
+            )
+            await db.flush()
+            db.add_all(
+                [
+                    InventionDisclosure(
+                        id=f"pd-{uuid.uuid4().hex[:12]}",
+                        workspace_id=ws_id,
+                        version=1,
+                        fields_enc="ciphertext",
+                        content_sha256="0" * 64,
+                        created_by=rows["u1"],
+                        created_at=_now(),
+                    ),
+                    ClaimElement(
+                        id=f"pe-{uuid.uuid4().hex[:12]}",
+                        workspace_id=ws_id,
+                        position=0,
+                        payload_enc="ciphertext",
+                        status="unreviewed",
+                        verified=False,
+                        updated_by=rows["u1"],
+                        updated_at=_now(),
+                    ),
+                ]
+            )
+            await db.commit()
+
+    async def visible() -> tuple[int, int, int]:
+        async with scoped_sessions() as db:
+            ws = (await db.execute(select(PatentWorkspace.id))).scalars().all()
+            disc = (await db.execute(select(InventionDisclosure.workspace_id))).scalars().all()
+            el = (await db.execute(select(ClaimElement.workspace_id))).scalars().all()
+        return (ws.count(ws_id), disc.count(ws_id), el.count(ws_id))
+
+    try:
+        with rls.scoped(rows["u1"]):
+            assert await visible() == (1, 1, 1)
+        with rls.scoped(rows["u2"]):
+            assert await visible() == (1, 1, 1)  # through matter membership
+        with rls.scoped(rows["u3"]):
+            assert await visible() == (0, 0, 0)
+        with rls.scoped(None):
+            assert await visible() == (0, 0, 0)
+    finally:
+        with rls.bypassed("test fixture: remove the patent workspace"):
+            async with AsyncSessionLocal() as db:
+                p = {"w": ws_id}
+                await db.execute(text("DELETE FROM claim_elements WHERE workspace_id = :w"), p)
+                await db.execute(
+                    text("DELETE FROM invention_disclosures WHERE workspace_id = :w"), p
+                )
+                await db.execute(text("DELETE FROM patent_workspaces WHERE id = :w"), p)
+                await db.commit()
